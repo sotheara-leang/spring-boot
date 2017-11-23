@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "app.home",
+    "type": "java.lang.String",
+    "description": "Application home"
+  },
+  {
+    "name": "app.config-home",
+    "type": "java.lang.String",
+    "description": "Configuration home"
+  }
+]}

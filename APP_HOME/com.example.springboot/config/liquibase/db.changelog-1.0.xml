@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+	<changeSet id="changelog-1.0" author="Sotheara">
+		<createTable tableName="user">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="username" type="varchar(15)" />
+			<column name="password" type="varchar(50)" />
+			<column name="last_name" type="varchar(50)" />
+			<column name="first_name" type="varchar(30)" />
+			<column name="role_id" type="bigint" />
+			<column name="creator_id" type="bigint">
+				<constraints referencedTableName="user" foreignKeyName="id" />
+			</column>
+			<column name="create_date" type="timestamp" defaultValueDate="now()"/>
+			<column name="updater_id" type="bigint">
+				<constraints referencedTableName="user" foreignKeyName="id" />
+			</column>
+			<column name="update_date" type="timestamp" defaultValueDate="now()"/>
+		</createTable>
+
+		<createTable tableName="role">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="code" type="varchar(25)" />
+			<column name="name" type="varchar(25)" />
+			<column name="description" type="varchar(50)" />
+			<column name="creator_id" type="bigint">
+				<constraints referencedTableName="user" foreignKeyName="id" />
+			</column>
+			<column name="create_date" type="timestamp" defaultValueDate="now()"/>
+			<column name="updater_id" type="bigint">
+				<constraints referencedTableName="user" foreignKeyName="id" />
+			</column>
+			<column name="update_date" type="timestamp" defaultValueDate="now()"/>
+		</createTable>
+
+		<addForeignKeyConstraint constraintName="user_fk_1"
+			referencedTableName="role" baseColumnNames="role_id" baseTableName="user"
+			referencedColumnNames="id" />
+			
+		<insert tableName="role">
+			<column name="id" value="1" />
+			<column name="code" value="ADMIN" />
+			<column name="name" value="Admin" />
+			<column name="description" value="Admin User" />
+		</insert>
+		<insert tableName="role">
+			<column name="id" value="2" />
+			<column name="code" value="SUPER_ADMIN" />
+			<column name="name" value="Super Admin" />
+			<column name="description" value="Super Admin User" />
+		</insert>
+		
+		<insert tableName="user">
+			<column name="username" value="admin" />
+			<column name="password" value="123" />
+			<column name="last_name" value="Leang" />
+			<column name="first_name" value="Sotheara" />
+			<column name="role_id" value="1" />
+		</insert>
+		<insert tableName="user">
+			<column name="username" value="sok" />
+			<column name="password" value="sok" />
+			<column name="last_name" value="Ly" />
+			<column name="first_name" value="Sok" />
+			<column name="role_id" value="1" />
+		</insert>
+	</changeSet>
+
+</databaseChangeLog> 

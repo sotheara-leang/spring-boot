@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layouts/default">
+<head>
+<title>Index</title>
+</head>
+<body>
+<div layout:fragment="content">
+	<div class="container-fluid">
+		<div class="jumbotron">
+			<h1 th:text="#{hello.world}">Hello, World!</h1>
+			<p></p>
+			<p>
+				<a class="btn btn-primary btn-lg" href="#" role="button" th:href="@{/user}" th:text="#{get.start}">Learn more</a>
+				<a class="btn btn-primary btn-lg" href="#" role="button" th:href="@{/user/info}">404</a>
+				<a class="btn btn-primary btn-lg" href="#" role="button" th:href="@{/user/error}">500</a>
+			</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>
