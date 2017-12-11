@@ -8,4 +8,28 @@
 		SELECT * FROM user 
 		WHERE id = #{id}
 	</select>
+	
+	<select id="selectByLastNameAndFirstName" resultType="UserDto">
+		SELECT * FROM user 
+		WHERE 
+			last_name = #{lastName}
+			AND first_name = #{firstName}
+	</select>
+	
+	<insert id="insertUser">
+		INSERT INTO user
+		(
+			username,
+			password,
+			last_name,
+			first_name,
+			role_id
+		) VALUES (
+			#{username},
+			#{password},
+			#{lastName},
+			#{firstName},
+			#{roleID}
+		)
+	</insert>
 </mapper>

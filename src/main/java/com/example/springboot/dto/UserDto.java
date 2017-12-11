@@ -1,10 +1,14 @@
 package com.example.springboot.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.NoArgsConstructor;
 
 @Data
-@Accessors (fluent = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserDto {
 
 	private Integer id;

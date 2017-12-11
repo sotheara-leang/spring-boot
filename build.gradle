@@ -41,6 +41,10 @@ dependencies {
 
 	compile('org.liquibase:liquibase-core')
 	
+	compile('commons-lang:commons-lang:2.6')
+	
+	compile('commons-beanutils:commons-beanutils:1.8.3')
+	
 	runtime('com.h2database:h2')
 	
 	compileOnly('org.projectlombok:lombok')

@@ -13,8 +13,26 @@ public class TestUserDao extends AbstractTest {
 	private UserDao userDao;
 	
 	@Test
-	public void doSelect() {
+	public void testSelect() {
 		UserDto selectUser = userDao.selectUser(1);
 		Assert.assertNotNull(selectUser);
+	}
+	
+	@Test
+	public void testSelectByLastNameAndFirstName() {
+		userDao.selectByLastNameAndFirstName("sss", "bbb");
+	}
+	
+	@Test
+	public void testInsert() {
+		UserDto userDto = UserDto.builder()
+				.username("username")
+				.password("123")
+				.lastName("leang")
+				.firstName("sotheara")
+				.roleID("2")
+				.build();
+		
+		userDao.insertUser(userDto);
 	}
 }
