@@ -16,6 +16,13 @@
 			AND first_name = #{firstName}
 	</select>
 	
+	<select id="selectByPage" resultType="UserDto">
+		SELECT * FROM user 
+		WHERE 
+			last_name = #{filter.lastName}
+			AND first_name = #{filter.firstName}			
+	</select>
+	
 	<insert id="insertUser">
 		INSERT INTO user
 		(
@@ -31,5 +38,25 @@
 			#{firstName},
 			#{roleID}
 		)
+	</insert>
+	
+	<insert id="insertUserBatch">
+		INSERT INTO user
+		(
+			username,
+			password,
+			last_name,
+			first_name,
+			role_id
+		) VALUES
+		<foreach collection="userList" item="item" separator=",">
+			(
+				#{item.username},
+				#{item.password},
+				#{item.lastName},
+				#{item.firstName},
+				#{item.roleID}
+			)
+		</foreach>
 	</insert>
 </mapper>
