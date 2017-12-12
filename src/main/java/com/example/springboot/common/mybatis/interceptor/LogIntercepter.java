@@ -30,32 +30,12 @@ public class LogIntercepter implements Interceptor {
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
 		Object result = invocation.proceed();
+
+		try {
+			String sql = generateSQL(invocation);
+			logger.debug(sql);
+		} catch (Exception e) {}
 		
-		final StatementHandler handler = (StatementHandler) invocation.getTarget();
-		final BoundSql boundSql = handler.getBoundSql();
-
-		final Object object = boundSql.getParameterObject();
-
-		String sql = boundSql.getSql().replaceAll("\\n", "").replaceAll("\\s{2,}", " ");
-
-		final List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
-		for (ParameterMapping pm : parameterMapping) {
-			String paramName = pm.getProperty();
-			
-			Object paramValue = null;
-			if (boundSql.getAdditionalParameter(paramName) != null) {
-				paramValue = boundSql.getAdditionalParameter(paramName);
-			} else {
-				paramValue = findParameterValue(object, paramName);
-			}
-
-			if (paramValue != null) {
-				sql = sql.replaceFirst("\\?", formatPrimitiveType(paramValue));
-			}
-		}
-
-		logger.debug(sql);
-
 		return result;
 	}
 	
@@ -67,6 +47,40 @@ public class LogIntercepter implements Interceptor {
 	@Override
 	public void setProperties(Properties properties) {
 
+	}
+	
+	protected String generateSQL(Invocation invocation) throws Exception {
+		String sql = null;
+		
+		try {
+			final StatementHandler handler = (StatementHandler) invocation.getTarget();
+			final BoundSql boundSql = handler.getBoundSql();
+	
+			final Object object = boundSql.getParameterObject();
+	
+			sql = boundSql.getSql().replaceAll("\\n", "").replaceAll("\\s{2,}", " ");
+	
+			final List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
+			for (ParameterMapping pm : parameterMapping) {
+				String paramName = pm.getProperty();
+				
+				Object paramValue = null;
+				if (boundSql.getAdditionalParameter(paramName) != null) {
+					paramValue = boundSql.getAdditionalParameter(paramName);
+				} else {
+					paramValue = findParameterValue(object, paramName);
+				}
+	
+				if (paramValue != null) {
+					sql = sql.replaceFirst("\\?", formatPrimitiveType(paramValue));
+				}
+			}
+		} catch (Exception e) {
+			logger.debug("Error generate SQL: ", sql);
+			throw e;
+		}
+		
+		return sql;
 	}
 	
 	protected Object findParameterValue(Object obj, String paramName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
