@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.springboot.common.mybatis.annotation.Batch;
 import com.example.springboot.dto.PageDto;
 import com.example.springboot.dto.UserDto;
 import com.example.springboot.dto.UserFilterDto;
@@ -20,5 +21,6 @@ public interface UserDao {
 	
 	int insertUser(UserDto user);
 	
+	@Batch
 	int insertUserBatch(@Param("userList") List<UserDto> userList);
 }

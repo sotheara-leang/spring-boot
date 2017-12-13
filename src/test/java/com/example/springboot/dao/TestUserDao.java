@@ -51,25 +51,20 @@ public class TestUserDao extends AbstractTest {
 	
 	@Test
 	public void testInsertBatch() {
-		UserDto userDto = UserDto.builder()
-				.username("user111")
-				.password("123")
-				.lastName("leang")
-				.firstName("sotheara")
-				.roleID("2")
-				.build();
-		
-		UserDto userDto2 = UserDto.builder()
-				.username("user222")
-				.password("222")
-				.lastName("sok")
-				.firstName("dara")
-				.roleID("1")
-				.build();
+		int size = 10;
 		
 		List<UserDto> userList = new ArrayList<>();
-		userList.add(userDto);
-		userList.add(userDto2);
+		for (int i = 0; i < size; i++) {
+			UserDto userDto = UserDto.builder()
+					.username("user_" + (i+1))
+					.password("123")
+					.lastName("leang_" + (i+1))
+					.firstName("sotheara_" + (i+1))
+					.roleID("2")
+					.build();
+			
+			userList.add(userDto);
+		}
 		
 		userDao.insertUserBatch(userList);
 	}

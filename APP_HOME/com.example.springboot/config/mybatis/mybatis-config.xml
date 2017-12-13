@@ -10,5 +10,8 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	</settings>
 	<plugins>
 		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.LogIntercepter"></plugin>
+		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.BatchIntercepter">
+			<property name="batchSize" value="3"/>
+		</plugin>
 	</plugins>
 </configuration>
