@@ -21,6 +21,6 @@ public interface UserDao {
 	
 	int insertUser(UserDto user);
 	
-	@Batch
+	@Batch(size = 5)
 	int insertUserBatch(@Param("userList") List<UserDto> userList);
 }

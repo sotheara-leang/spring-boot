@@ -23,10 +23,10 @@ import com.example.springboot.common.mybatis.annotation.Batch;
 @Intercepts({@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 public class BatchIntercepter implements Interceptor {
 
-	private static final String BATCH_SIZE_PROPERTY_NAME = "batchSize";
-	private static final int DEFAULT_BATCH_SIZE = 10;
+	private static final String DEFAULT_BATCH_SIZE_PROPERTY_NAME = "defaultBatchSize";
+	private static final int DEFAULT_BATCH_SIZE = 50;
 	
-	private int batchSize;
+	private int defaultBatchSize;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -46,10 +46,15 @@ public class BatchIntercepter implements Interceptor {
 					Method method = getBatchMethod(stmt.getId());
 					Batch batchAnnotation = method.getAnnotation(Batch.class);
 					
+					int batchSize = batchAnnotation.size();
+					if (batchSize == -1) {
+						batchSize = defaultBatchSize;
+					}
+					
 					if (batchAnnotation != null) {
 						final Collection<?> list = (Collection<?>) param;
 						
-						if (list.size() < batchSize) {
+						if (list.size() <= batchSize) {
 							return invocation.proceed();
 						}
 						
@@ -96,8 +101,8 @@ public class BatchIntercepter implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-		Object batchSize = properties.getOrDefault(BATCH_SIZE_PROPERTY_NAME, DEFAULT_BATCH_SIZE);
-		this.batchSize = batchSize instanceof String ? new Integer((String) batchSize) : (int) batchSize;
+		Object batchSize = properties.getOrDefault(DEFAULT_BATCH_SIZE_PROPERTY_NAME, DEFAULT_BATCH_SIZE);
+		this.defaultBatchSize = batchSize instanceof String ? new Integer((String) batchSize) : (int) batchSize;
 	}
 	
 	protected Method getBatchMethod(String stmtId) throws Exception {
