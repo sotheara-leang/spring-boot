@@ -21,7 +21,7 @@ import org.apache.ibatis.plugin.Signature;
 import com.example.springboot.common.mybatis.annotation.Batch;
 
 @Intercepts({@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
-public class BatchIntercepter implements Interceptor {
+public class BatchInsertInterceptor implements Interceptor {
 
 	private static final String DEFAULT_BATCH_SIZE_PROPERTY_NAME = "defaultBatchSize";
 	private static final int DEFAULT_BATCH_SIZE = 50;
@@ -39,12 +39,12 @@ public class BatchIntercepter implements Interceptor {
 			if (Map.class.isAssignableFrom(object.getClass()) && ((Map) object).size() == 2) {
 				Map<String, Object> paramMap = (Map) object;
 
-				Object[] paramNames = paramMap.keySet().toArray();
+				final Object[] paramNames = paramMap.keySet().toArray();
 				final Object param = paramMap.get(paramNames[0]);
 				
 				if (param != null && List.class.isAssignableFrom(param.getClass())) {
-					Method method = getBatchMethod(stmt.getId());
-					Batch batchAnnotation = method.getAnnotation(Batch.class);
+					final Method method = getBatchMethod(stmt.getId());
+					final Batch batchAnnotation = method.getAnnotation(Batch.class);
 					
 					int batchSize = batchAnnotation.size();
 					if (batchSize == -1) {
@@ -68,17 +68,16 @@ public class BatchIntercepter implements Interceptor {
 							counter++;
 							
 							if (counter == batchSize || (index == list.size() - 1)) {
-								Map<String, Object> subParamMap = (Map<String, Object>) SerializationUtils.clone((Serializable) object);
+								final Map<String, Object> subParamMap = (Map<String, Object>) SerializationUtils.clone((Serializable) object);
 								subParamMap.put((String) paramNames[0], subList);
 								subParamMap.put((String) paramNames[1], subList);
 								
-								Object[] subArgs = invocation.getArgs();
+								final Object[] subArgs = invocation.getArgs();
 								subArgs[1] = subParamMap;
 								
-								Invocation subInvocation = new Invocation(invocation.getTarget(), invocation.getMethod(), subArgs);
+								final Invocation subInvocation = new Invocation(invocation.getTarget(), invocation.getMethod(), subArgs);
 								
-								Integer rowCount = (Integer) subInvocation.proceed();
-								rowEffect += rowCount;
+								rowEffect += (Integer) subInvocation.proceed();
 								
 								subList = new ArrayList<>();
 								counter = 0;
@@ -101,15 +100,15 @@ public class BatchIntercepter implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-		Object batchSize = properties.getOrDefault(DEFAULT_BATCH_SIZE_PROPERTY_NAME, DEFAULT_BATCH_SIZE);
+		final Object batchSize = properties.getOrDefault(DEFAULT_BATCH_SIZE_PROPERTY_NAME, DEFAULT_BATCH_SIZE);
 		this.defaultBatchSize = batchSize instanceof String ? new Integer((String) batchSize) : (int) batchSize;
 	}
 	
 	protected Method getBatchMethod(String stmtId) throws Exception {
-		int lastPoint = stmtId.lastIndexOf(".");
+		final int lastPoint = stmtId.lastIndexOf(".");
 		
-		String methodName = stmtId.substring(lastPoint + 1); 
-		Class<?> daoClass = Class.forName(stmtId.substring(0, lastPoint));
+		final String methodName = stmtId.substring(lastPoint + 1); 
+		final Class<?> daoClass = Class.forName(stmtId.substring(0, lastPoint));
 		
 		Method method = null;
 		try {

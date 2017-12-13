@@ -25,9 +25,9 @@ import com.example.springboot.common.mybatis.util.SqlFormatter;
 	@Signature(type = StatementHandler.class, method = "update", args = { Statement.class }),
 	@Signature(type = StatementHandler.class, method = "query", args = { Statement.class, ResultHandler.class }) 
 })
-public class SqlLogIntercepter implements Interceptor {
+public class SqlLogInterceptor implements Interceptor {
 
-	private static final Logger logger = LoggerFactory.getLogger(SqlLogIntercepter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SqlLogInterceptor.class);
 	
 	private static final String PRETTY_PRINT_PROPERTY_NAME = "prettyPrint";
 	
@@ -35,7 +35,7 @@ public class SqlLogIntercepter implements Interceptor {
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
-		Object result = invocation.proceed();
+		final Object result = invocation.proceed();
 
 		try {
 			String sql = generateSQL(invocation);
@@ -57,7 +57,7 @@ public class SqlLogIntercepter implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-		String prettyPrint = properties.getProperty(PRETTY_PRINT_PROPERTY_NAME);
+		final String prettyPrint = properties.getProperty(PRETTY_PRINT_PROPERTY_NAME);
 		if ("true".equals(prettyPrint) || "false".equals(prettyPrint)) {
 			this.prettyPrint = Boolean.valueOf(prettyPrint);
 		}
@@ -76,7 +76,7 @@ public class SqlLogIntercepter implements Interceptor {
 	
 			final List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
 			for (ParameterMapping pm : parameterMapping) {
-				String paramName = pm.getProperty();
+				final String paramName = pm.getProperty();
 				
 				Object paramValue = null;
 				if (boundSql.getAdditionalParameter(paramName) != null) {
@@ -104,12 +104,12 @@ public class SqlLogIntercepter implements Interceptor {
 			return obj;
 		}
 		
-		Integer point = paramName.indexOf(".");
-		Boolean isObjectMap = Map.class.isAssignableFrom(objClass);
+		final Integer point = paramName.indexOf(".");
+		final Boolean isObjectMap = Map.class.isAssignableFrom(objClass);
 		
 		if (point != -1) {
-			String childParamName = paramName.substring(0, point);
-			Object childObj = isObjectMap ? ((Map<?, ?>) obj).get(childParamName) : PropertyUtils.getProperty(obj, childParamName);
+			final String childParamName = paramName.substring(0, point);
+			final Object childObj = isObjectMap ? ((Map<?, ?>) obj).get(childParamName) : PropertyUtils.getProperty(obj, childParamName);
 			
 			return findParameterValue(childObj, paramName.substring(point + 1));
 		}

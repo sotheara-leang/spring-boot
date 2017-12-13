@@ -9,10 +9,10 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
 	</settings>
 	<plugins>
-		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.SqlLogIntercepter">
-			<property name="prettyPrint" value="true"/>
+		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.SqlLogInterceptor">
+			<property name="prettyPrint" value="false"/>
 		</plugin>
-		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.BatchIntercepter">
+		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.BatchInsertInterceptor">
 			<property name="defaultBatchSize" value="20"/>
 		</plugin>
 	</plugins>
