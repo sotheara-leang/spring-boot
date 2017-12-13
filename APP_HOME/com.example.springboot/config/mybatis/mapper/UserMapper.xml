@@ -49,13 +49,13 @@
 			first_name,
 			role_id
 		) VALUES
-		<foreach collection="userList" item="item" separator=",">
+		<foreach collection="userList" item="user" separator=",">
 			(
-				#{item.username},
-				#{item.password},
-				#{item.lastName},
-				#{item.firstName},
-				#{item.roleID}
+				#{user.username},
+				#{user.password},
+				#{user.lastName},
+				#{user.firstName},
+				#{user.roleID}
 			)
 		</foreach>
 	</insert>
