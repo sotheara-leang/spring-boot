@@ -19,13 +19,19 @@ import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.springboot.common.mybatis.util.SqlFormatter;
+
 @Intercepts({ 
 	@Signature(type = StatementHandler.class, method = "update", args = { Statement.class }),
 	@Signature(type = StatementHandler.class, method = "query", args = { Statement.class, ResultHandler.class }) 
 })
-public class LogIntercepter implements Interceptor {
+public class SqlLogIntercepter implements Interceptor {
 
-	private static final Logger logger = LoggerFactory.getLogger(LogIntercepter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SqlLogIntercepter.class);
+	
+	private static final String PRETTY_PRINT_PROPERTY_NAME = "prettyPrint";
+	
+	private boolean prettyPrint = false;
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
@@ -33,7 +39,12 @@ public class LogIntercepter implements Interceptor {
 
 		try {
 			String sql = generateSQL(invocation);
+			if (prettyPrint) {
+				sql = SqlFormatter.format(sql);
+			}
+			
 			logger.debug(sql);
+			
 		} catch (Exception e) {}
 		
 		return result;
@@ -46,7 +57,10 @@ public class LogIntercepter implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-
+		String prettyPrint = properties.getProperty(PRETTY_PRINT_PROPERTY_NAME);
+		if ("true".equals(prettyPrint) || "false".equals(prettyPrint)) {
+			this.prettyPrint = Boolean.valueOf(prettyPrint);
+		}
 	}
 	
 	protected String generateSQL(Invocation invocation) throws Exception {
