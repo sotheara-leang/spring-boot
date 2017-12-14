@@ -178,10 +178,10 @@ public class APIConnector {
 				} else if (cause instanceof SocketException) {
 					logger.error("Error creating/accessing connection.");
 				} else {
-					logger.error("Unknown error while calling external API.");
+					logger.error("Error while calling external API.");
 				}
 			} else {
-				logger.error("Unknown error while calling external API.");
+				logger.error("Error while calling external API.");
 			}
 			
 			logger.error("Interval time: {}ms", System.currentTimeMillis() - t1, e);
