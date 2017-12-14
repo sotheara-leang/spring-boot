@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -21,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -97,11 +97,20 @@ public class APIConnector {
 		 return request(url, method, null, request, responseType);
 	}
 	
-	public <RES> RES requestMultipart(String url, HttpMethod method, Map<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES requestMultipart(String url, LinkedMultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws URISyntaxException, RestClientException {
+		return requestMultipart(url, requestMap, new ParameterizedTypeReference<RES>() {
+			@Override
+			public Type getType() {
+				return responseClass;
+			}
+		});
+	}
+	
+	public <RES> RES requestMultipart(String url, LinkedMultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		
-		return request(url, method, headers, requestMap, responseType);
+		return request(url, HttpMethod.POST, headers, requestMap, responseType);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -112,21 +121,24 @@ public class APIConnector {
 		long t1 = System.currentTimeMillis();
 		
 		try {
-			logger.debug("========== Request to external API ==========");
-			logger.debug("Url: " + fullUrl);
-			logger.debug("Request: " + serialize( request ));
+			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REQUEST TO EXTERNAL API >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+			logger.debug("Url: {}", fullUrl);
+			logger.debug("Headers: {}", serialize(headers));
+			logger.debug("Request: {}", serialize(request));
+			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 			
-			MediaType contentType = headers.getContentType();
-			if (MediaType.MULTIPART_FORM_DATA == contentType && Map.class.isAssignableFrom(request.getClass())) {
-				Map<String, Object> requestMap = (Map<String, Object>) request;
-				
-				Set<String> reqParamNames = requestMap.keySet();
-				for (String paramName : reqParamNames) {
-					Object paramValue = requestMap.get(paramName);
+			if (headers != null) {
+				if (MediaType.MULTIPART_FORM_DATA == headers.getContentType() && LinkedMultiValueMap.class.isAssignableFrom(request.getClass())) {
+					LinkedMultiValueMap<String, Object> requestMap = (LinkedMultiValueMap<String, Object>) request;
 					
-					if (File.class.isAssignableFrom(paramValue.getClass())) {
-						FileSystemResource fileResouce = new FileSystemResource((File) paramValue);
-						requestMap.put(paramName, fileResouce);
+					Set<String> reqParamNames = requestMap.keySet();
+					for (String paramName : reqParamNames) {
+						Object paramValue = requestMap.get(paramName);
+						
+						if (File.class.isAssignableFrom(paramValue.getClass())) {
+							FileSystemResource fileResouce = new FileSystemResource((File) paramValue);
+							requestMap.set(paramName, fileResouce);
+						}
 					}
 				}
 			}
@@ -135,41 +147,47 @@ public class APIConnector {
 			ResponseEntity<RES> resEntity = restOperations.exchange(reqEntity, responseType);
 			response = resEntity.getBody();
 			
-			logger.debug("========== Response from external API ==========");
-			logger.debug("Interval time : {}ms", System.currentTimeMillis() - t1);
-			logger.debug("Response: " + serialize ( response ));
+			logger.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< RESPONSE FROM EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+			logger.debug("Status code: {}", resEntity.getStatusCode());
+			logger.debug("Headers: {}", serialize(resEntity.getHeaders()));
+			logger.debug("Response: {}", serialize (response));
+			logger.debug("Interval time: {}ms", System.currentTimeMillis() - t1);
+			logger.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 			
 		} catch (URISyntaxException e) {
-			logger.error(">>> Url is incorrect: {}", fullUrl, e);
+			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ERROR REQUEST TO EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+			logger.error("Url is incorrect: {}", fullUrl, e);
+			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+			
 			throw e;
 			
-		} catch (RestClientException e) {
-			Throwable cause = e.getCause();
+		} catch (Exception e) {
+			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ERROR REQUEST TO EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 			
-			if (cause instanceof ConnectException) {
-				logger.error(">>> Connection refused to external API.");
-			} else if (cause instanceof ConnectionPoolTimeoutException) {
-				logger.error(">>> Connection pool timeout.");
-			} else if (cause instanceof ConnectTimeoutException) {
-				logger.error(">>> Connection timeout to external API.");
-			} else if (cause instanceof SocketTimeoutException) {
-				logger.error(">>> Read time out to external API.");
-			} else if (cause instanceof SocketException) {
-				logger.error(">>> Error creating/accessing connection.");
+			if (e instanceof RestClientException) {
+				Throwable cause = e.getCause();
+				
+				if (cause instanceof ConnectException) {
+					logger.error("Connection refused to external API.");
+				} else if (cause instanceof ConnectionPoolTimeoutException) {
+					logger.error("Connection pool timeout.");
+				} else if (cause instanceof ConnectTimeoutException) {
+					logger.error("Connection timeout to external API.");
+				} else if (cause instanceof SocketTimeoutException) {
+					logger.error("Read time out to external API.");
+				} else if (cause instanceof SocketException) {
+					logger.error("Error creating/accessing connection.");
+				} else {
+					logger.error("Unknown error while calling external API.");
+				}
 			} else {
-				logger.error(">>> Error while calling external API.");
+				logger.error("Unknown error while calling external API.");
 			}
 			
 			logger.error("Interval time: {}ms", System.currentTimeMillis() - t1, e);
-			throw e;
+			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 			
-		} catch (RuntimeException e) {
-			logger.error(">>> Error while calling external API");
-			logger.error("Interval time: {}ms", System.currentTimeMillis() - t1, e);
 			throw e;
-			
-		} finally {
-			logger.debug("========== End calling external API ==========");
 		}
 		
 		return response;

@@ -7,11 +7,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.springboot.AbstractTest;
+import com.example.springboot.AbstractTestCase;
 import com.example.springboot.dto.UserDto;
 import com.example.springboot.dto.UserFilterDto;
 
-public class TestUserDao extends AbstractTest {
+public class TestUserDao extends AbstractTestCase {
 
 	@Autowired
 	private UserDao userDao;
