@@ -1,9 +1,10 @@
 package com.example.springboot.common.mybatis.interceptor;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -17,13 +18,18 @@ import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.example.springboot.common.mybatis.annotation.Batch;
 
 @Intercepts({@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 public class BatchInsertInterceptor implements Interceptor {
+	
+	private static final Logger logger = LoggerFactory.getLogger(BatchInsertInterceptor.class);
 
 	private static final String DEFAULT_BATCH_SIZE_PROPERTY_NAME = "defaultBatchSize";
+	
 	private static final int DEFAULT_BATCH_SIZE = 50;
 	
 	private int defaultBatchSize;
@@ -42,32 +48,35 @@ public class BatchInsertInterceptor implements Interceptor {
 				final Object[] paramNames = paramMap.keySet().toArray();
 				final Object param = paramMap.get(paramNames[0]);
 				
-				if (param != null && List.class.isAssignableFrom(param.getClass())) {
+				if (param != null && (List.class.isAssignableFrom(param.getClass()))
+						|| Array.class.isAssignableFrom(param.getClass())) {
+					
 					final Method method = getBatchMethod(stmt.getId());
 					final Batch batchAnnotation = method.getAnnotation(Batch.class);
 					
-					int batchSize = batchAnnotation.size();
-					if (batchSize == -1) {
-						batchSize = defaultBatchSize;
-					}
-					
 					if (batchAnnotation != null) {
-						final Collection<?> list = (Collection<?>) param;
+						int batchSize = batchAnnotation.size();
+						if (batchSize == -1) {
+							batchSize = defaultBatchSize;
+						}
+						
+						final List<?> list = Array.class.isAssignableFrom(param.getClass()) ? Arrays.asList(param) : (List<Object>) param;
 						
 						if (list.size() <= batchSize) {
 							return invocation.proceed();
 						}
-						
-						int index = 0;
+
 						int counter = 0;
 						int rowEffect = 0;
+						int batchIteration = 0;
 						List<Object> subList = new ArrayList<>();
-						for (Object element : list) {
+						for (int i = 0 ; i < list.size(); i++) {
+							Object element = list.get(i);
 							
 							subList.add(element);
 							counter++;
 							
-							if (counter == batchSize || (index == list.size() - 1)) {
+							if (counter == batchSize || (i == list.size() - 1)) {
 								final Map<String, Object> subParamMap = (Map<String, Object>) SerializationUtils.clone((Serializable) object);
 								subParamMap.put((String) paramNames[0], subList);
 								subParamMap.put((String) paramNames[1], subList);
@@ -75,15 +84,20 @@ public class BatchInsertInterceptor implements Interceptor {
 								final Object[] subArgs = invocation.getArgs();
 								subArgs[1] = subParamMap;
 								
-								final Invocation subInvocation = new Invocation(invocation.getTarget(), invocation.getMethod(), subArgs);
+								logger.debug("Invoke batch iteration {} with size {}: {}", ++batchIteration, batchSize, stmt.getId());
+								logger.debug("Input data: {}", subList);
 								
-								rowEffect += (Integer) subInvocation.proceed();
+								Invocation subInvocation = new Invocation(invocation.getTarget(), invocation.getMethod(), subArgs);
+								try {
+									rowEffect += (int) subInvocation.proceed();
+								} catch (Exception e) {
+									logger.error("Error while invoking batch iteration {}", batchIteration);
+									throw e;
+								}
 								
 								subList = new ArrayList<>();
 								counter = 0;
 							}
-							
-							index++;
 						}
 						return rowEffect;
 					}
@@ -104,6 +118,10 @@ public class BatchInsertInterceptor implements Interceptor {
 		this.defaultBatchSize = batchSize instanceof String ? new Integer((String) batchSize) : (int) batchSize;
 	}
 	
+	protected void processBatchInsert(Invocation invocation) {
+		
+	}
+	
 	protected Method getBatchMethod(String stmtId) throws Exception {
 		final int lastPoint = stmtId.lastIndexOf(".");
 		
@@ -114,7 +132,13 @@ public class BatchInsertInterceptor implements Interceptor {
 		try {
 			method = daoClass.getMethod(methodName, List.class);
 		} catch (Exception e) {
-			throw e;
+			
+		}
+		
+		try {
+			method = daoClass.getMethod(methodName, Array.class);
+		} catch (Exception e) {
+			
 		}
 		
 		return method;

@@ -34,5 +34,6 @@ liquibase:
     
 logging:
   level:
+    org.mybatis: DEBUG
     com.example.springboot: DEBUG
-    
+        

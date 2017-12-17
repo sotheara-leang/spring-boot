@@ -35,19 +35,17 @@ public class SqlLogInterceptor implements Interceptor {
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
-		final Object result = invocation.proceed();
-
 		try {
 			String sql = generateSQL(invocation);
 			if (prettyPrint) {
 				sql = SqlFormatter.format(sql);
 			}
 			
-			logger.debug(sql);
+			logger.debug("==> SQL: {}", sql);
 			
 		} catch (Exception e) {}
 		
-		return result;
+		return invocation.proceed();
 	}
 	
 	@Override

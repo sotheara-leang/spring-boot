@@ -1,5 +1,7 @@
 package com.example.springboot.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +18,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto selectUser(Integer id) {
 		return userDao.selectUser(id);
+	}
+
+	@Override
+	public int insertUserBatch(List<UserDto> userList) {
+		return userDao.insertUserBatch(userList);
 	}
 }

@@ -6,6 +6,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.example.springboot.AbstractTestCase;
 import com.example.springboot.dto.UserDto;
@@ -15,6 +18,9 @@ public class TestUserDao extends AbstractTestCase {
 
 	@Autowired
 	private UserDao userDao;
+	
+	@Autowired
+	private PlatformTransactionManager txManager;
 	
 	@Test
 	public void testSelect() {
@@ -67,5 +73,33 @@ public class TestUserDao extends AbstractTestCase {
 		}
 		
 		userDao.insertUserBatch(userList);
+	}
+	
+	@Test
+	public void testInsertBatchWithTransactional() {
+		int size = 10;
+		
+		List<UserDto> userList = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			UserDto userDto = UserDto.builder()
+					.username("user_" + (i > 5 ? "ssssssssssssssssssss" : (i+1)))
+					.password("123")
+					.lastName("leang_" + (i+1))
+					.firstName("sotheara_" + (i+1))
+					.roleID("2")
+					.build();
+			
+			userList.add(userDto);
+		}
+		
+		TransactionStatus status = txManager.getTransaction(new DefaultTransactionDefinition());
+		try {
+			userDao.insertUserBatch(userList);
+			txManager.commit(status);
+			
+		} catch (Exception e) {
+			txManager.rollback(status);
+			e.printStackTrace();
+		}
 	}
 }
