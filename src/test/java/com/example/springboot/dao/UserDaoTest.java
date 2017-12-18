@@ -1,9 +1,10 @@
 package com.example.springboot.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,8 +25,8 @@ public class UserDaoTest extends AbstractServiceTest {
 	
 	@Test
 	public void testSelect() {
-		UserDto selectUser = userDao.selectUser(1);
-		Assert.assertNotNull(selectUser);
+		UserDto userDto = userDao.selectUser(1);
+		assertThat(userDto).isNotNull();
 	}
 	
 	@Test
@@ -52,7 +53,9 @@ public class UserDaoTest extends AbstractServiceTest {
 				.roleID("2")
 				.build();
 		
-		userDao.insertUser(userDto);
+		int result = userDao.insertUser(userDto);
+		
+		assertThat(result).isEqualTo(1);
 	}
 	
 	@Test
@@ -72,7 +75,9 @@ public class UserDaoTest extends AbstractServiceTest {
 			userList.add(userDto);
 		}
 		
-		userDao.insertUserBatch(userList);
+		int result = userDao.insertUserBatch(userList);
+		
+		assertThat(result).isEqualTo(10);
 	}
 	
 	@Test
