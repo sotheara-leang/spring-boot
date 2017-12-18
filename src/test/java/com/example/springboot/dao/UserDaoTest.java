@@ -10,11 +10,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.example.springboot.AbstractTestCase;
+import com.example.springboot.AbstractServiceTest;
 import com.example.springboot.dto.UserDto;
 import com.example.springboot.dto.UserFilterDto;
 
-public class TestUserDao extends AbstractTestCase {
+public class UserDaoTest extends AbstractServiceTest {
 
 	@Autowired
 	private UserDao userDao;

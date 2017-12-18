@@ -1,17 +1,36 @@
 package com.example.springboot.common;
 
+import java.net.URI;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.springboot.AbstractTestCase;
+import com.example.springboot.AbstractWebTest;
 import com.example.springboot.common.connector.APIConnector;
 import com.example.springboot.dto.UserDto;
 
-public class TestAPIConnector extends AbstractTestCase {
+public class APIConnectorTest extends AbstractWebTest {
 	
-	private APIConnector connector = new APIConnector("http://localhost:9090", new RestTemplate());
+	@Autowired
+	private TestRestTemplate testRestTemplate;
+	
+	private APIConnector connector; 
+
+	
+	@Before
+	public void init() {
+		RestTemplate restTemplate = testRestTemplate.getRestTemplate();
+
+		URI url = URI.create(((RootUriTemplateHandler) restTemplate.getUriTemplateHandler()).getRootUri());
+		
+		connector = new APIConnector(url.toString(), testRestTemplate.getRestTemplate());
+	}
 	
 	@Test
 	public void testGetUser() throws Exception {

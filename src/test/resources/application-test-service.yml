@@ -1,0 +1,21 @@
+app:
+  config-home: ${APP_HOME}/${spring.application.name}/config
+
+spring:
+  application:
+    name: com.example.springboot
+ 
+endpoints:
+  actuator:
+    enabled: false
+    
+liquibase:
+  change-log: file:${app.config-home}/liquibase/db.changelog-master.xml
+  parameters:
+    liquibase-home: ${app.config-home}/liquibase
+    
+logging:
+  level:
+    org.mybatis: DEBUG
+    com.example.springboot: DEBUG
+        
