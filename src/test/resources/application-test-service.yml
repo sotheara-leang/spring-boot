@@ -4,12 +4,20 @@ app:
 spring:
   application:
     name: com.example.springboot
- 
+  datasource:
+    platform: h2  
+  batch:
+    job:
+      enabled: false
+    initializer:
+      enabled: true
+      
 endpoints:
   actuator:
     enabled: false
     
 liquibase:
+  enabled: true
   change-log: file:${app.config-home}/liquibase/db.changelog-master.xml
   parameters:
     liquibase-home: ${app.config-home}/liquibase

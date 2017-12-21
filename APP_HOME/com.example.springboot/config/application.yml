@@ -18,7 +18,22 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
-      
+#  datasource:
+#    platform: mysql
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/spring-boot
+#    password: root
+#    username: root
+#    tomcat:
+#      max-active: 50
+#      max-age: 10000
+#      test-on-borrow: true
+  batch:
+    job:
+      enabled: false
+    initializer:
+      enabled: true
+    
 server:
   port: 9090
   
@@ -31,6 +46,7 @@ logging:
   config: ${app.config-home}/logback.xml
  
 liquibase:
+  enabled: true
   change-log: file:${app.config-home}/liquibase/db.changelog-master.xml
   parameters:
     liquibase-home: ${app.config-home}/liquibase

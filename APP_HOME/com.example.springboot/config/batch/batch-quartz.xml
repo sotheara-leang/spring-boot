@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="timeZone" class="java.util.TimeZone" factory-method="getTimeZone">
+	    <constructor-arg value="Asia/Bangkok" />
+	</bean>
+	
+	<bean name="mySimpleJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+	    <property name="jobClass" value="com.example.springboot.common.batch.quartz.job.QuartzJobLauncher" />
+	    <property name="group" value="SIMPLE_GROUP" />
+	    <property name="description" value="My simple job"/>
+	    <property name="durability" value="true" />
+	    <property name="jobDataMap">
+	    	<map>
+	    		<entry key="jobName" value="mySimpleJob" />
+	    		<entry key="jobLauncher">
+	    			<ref bean="jobLauncher"/>
+	    		</entry>
+	    		<entry key="jobLocator">
+	    			<ref bean="jobRegistry"/>
+	    		</entry>
+	    	</map>
+	    </property>
+	</bean>
+	
+	<bean id="mySimpleJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="mySimpleJobDetail" />
+		<property name="description" value="My simple job trigger" />
+		<property name="cronExpression" value="0/10 * * ? * *" />
+		<property name="timeZone" ref="timeZone" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobFactory">
+			<bean class="com.example.springboot.common.quartz.factory.AutowiringSpringBeanJobFactory" />
+		</property>
+		<property name="jobDetails">
+			<list>
+				<ref bean="mySimpleJobDetail"/>
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="mySimpleJobTrigger"/>
+			</list>
+		</property>
+	</bean>
+</beans>
