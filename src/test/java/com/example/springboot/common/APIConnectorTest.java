@@ -39,11 +39,23 @@ public class APIConnectorTest extends AbstractWebTest {
 	
 	@Test
 	public void testUploadFile() throws Exception {
-		ClassPathResource resource = new ClassPathResource("application-test.yml");
+		ClassPathResource resource = new ClassPathResource("application-test-service.yml");
 		
 		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		map.add("file", resource.getFile());
 		
 		connector.requestMultipart("/api/upload", map, String.class);
+	} 
+	
+	@Test
+	public void testUploadFileList() throws Exception {
+		ClassPathResource resourceResource = new ClassPathResource("application-test-service.yml");
+		ClassPathResource resourceResource2 = new ClassPathResource("application-test-web.yml");
+		
+		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+		map.add("files", resourceResource.getFile());
+		map.add("files", resourceResource2.getFile());
+		
+		connector.requestMultipart("/api/upload/list", map, String.class);
 	} 
 }
