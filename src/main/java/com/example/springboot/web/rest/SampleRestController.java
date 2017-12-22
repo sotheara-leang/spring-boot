@@ -22,7 +22,12 @@ public class SampleRestController {
 	}
 	
 	@PostMapping("/api/upload")
-	public String uploadFile(MultipartFile multipartFile) {
+	public String uploadFile(MultipartFile file) {
+		return "Success";
+	}
+	
+	@PostMapping("/api/upload/list")
+	public String uploadFileList(MultipartFile[] files) {
 		return "Success";
 	}
 }

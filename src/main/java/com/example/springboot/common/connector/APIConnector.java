@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class APIConnector {
@@ -38,7 +41,8 @@ public class APIConnector {
 	private static final ObjectMapper objectMapper = new ObjectMapper()
 			.setNodeFactory( JsonNodeFactory.withExactBigDecimals(true) )
 			.setSerializationInclusion( Include.NON_NULL )
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		
 	private String baseUrl;
 	
@@ -55,31 +59,31 @@ public class APIConnector {
 
 	// GET
 	
-	public <REQ, RES> RES get(String url, REQ request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES get(String url, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
 		return request(url, HttpMethod.GET, request, responseClass);
 	}
 	
-	public <REQ, RES> RES get(String url, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		return request(url, HttpMethod.GET, request, responseType);
 	}
 	
 	// POST
 	
-	public <REQ, RES> RES post(String url, REQ request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES post(String url, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
 		return request(url, HttpMethod.POST, responseClass);
 	}
 	
-	public <REQ, RES> RES post(String url, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES post(String url, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		return request(url, HttpMethod.POST, request, responseType);
 	}
 	
 	// Request
 	
-	public <REQ, RES> RES request(String url, HttpMethod method, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, Class<RES> responseClass) throws RestClientException, URISyntaxException {
 		return request(url, method, null, responseClass);
 	}
 	
-	public <REQ, RES> RES request(String url, HttpMethod method, REQ request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
 		return request(url, method, request, new ParameterizedTypeReference<RES>() {
 
 			@Override
@@ -89,15 +93,15 @@ public class APIConnector {
 		});
 	}
 	
-	public <REQ, RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException, URISyntaxException {
 		return request(url, method, null, responseType);
 	}
 	
-	public <REQ, RES> RES request(String url, HttpMethod method, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES request(String url, HttpMethod method, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		 return request(url, method, null, request, responseType);
 	}
 	
-	public <RES> RES requestMultipart(String url, LinkedMultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws URISyntaxException, RestClientException {
+	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws URISyntaxException, RestClientException {
 		return requestMultipart(url, requestMap, new ParameterizedTypeReference<RES>() {
 			@Override
 			public Type getType() {
@@ -106,7 +110,7 @@ public class APIConnector {
 		});
 	}
 	
-	public <RES> RES requestMultipart(String url, LinkedMultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		
@@ -114,7 +118,7 @@ public class APIConnector {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES request(String url, HttpMethod method, HttpHeaders headers, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		RES response = null;
 		
 		String fullUrl = baseUrl + url;
@@ -127,23 +131,35 @@ public class APIConnector {
 			logger.debug("Request: {}", serialize(request));
 			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 			
+			Object internalRequest = request;
+			
 			if (headers != null) {
-				if (MediaType.MULTIPART_FORM_DATA == headers.getContentType() && LinkedMultiValueMap.class.isAssignableFrom(request.getClass())) {
-					LinkedMultiValueMap<String, Object> requestMap = (LinkedMultiValueMap<String, Object>) request;
+				if (MediaType.MULTIPART_FORM_DATA.equals(headers.getContentType()) && MultiValueMap.class.isAssignableFrom(request.getClass())) {
+					MultiValueMap<String, Object> internalMultiValueMap = new LinkedMultiValueMap<String, Object>();
 					
-					Set<String> reqParamNames = requestMap.keySet();
+					MultiValueMap<String, Object> requestMultiValueMap = (MultiValueMap<String, Object>) request;
+					Set<String> reqParamNames = requestMultiValueMap.keySet();
+					
 					for (String paramName : reqParamNames) {
-						Object paramValue = requestMap.get(paramName);
+						LinkedList<Object> paramValueList = (LinkedList<Object>) requestMultiValueMap.get(paramName);
 						
-						if (File.class.isAssignableFrom(paramValue.getClass())) {
-							FileSystemResource fileResouce = new FileSystemResource((File) paramValue);
-							requestMap.set(paramName, fileResouce);
+						for (Object paramValue : paramValueList) {
+							Object t = paramValue;
+							if (paramValue != null) {
+								Class<?> paramValueClass = paramValue.getClass();
+								if (File.class.isAssignableFrom(paramValueClass)) {
+									t = new FileSystemResource((File) paramValue);
+								} 
+							}
+							internalMultiValueMap.add(paramName, t);
 						}
 					}
+					
+					internalRequest = internalMultiValueMap;
 				}
 			}
 			
-			RequestEntity<REQ> reqEntity = new RequestEntity<REQ>(request, headers, method, new URI(fullUrl));  
+			RequestEntity<Object> reqEntity = new RequestEntity<Object>(internalRequest, headers, method, new URI(fullUrl));  
 			ResponseEntity<RES> resEntity = restOperations.exchange(reqEntity, responseType);
 			response = resEntity.getBody();
 			
