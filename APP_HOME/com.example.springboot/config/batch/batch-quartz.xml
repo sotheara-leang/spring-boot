@@ -15,12 +15,8 @@
 	    <property name="jobDataMap">
 	    	<map>
 	    		<entry key="jobName" value="mySimpleJob" />
-	    		<entry key="jobLauncher">
-	    			<ref bean="jobLauncher"/>
-	    		</entry>
-	    		<entry key="jobLocator">
-	    			<ref bean="jobRegistry"/>
-	    		</entry>
+	    		<entry key="jobLauncher" value-ref="jobLauncher" />
+	    		<entry key="jobLocator" value-ref="jobRegistry" />
 	    	</map>
 	    </property>
 	</bean>

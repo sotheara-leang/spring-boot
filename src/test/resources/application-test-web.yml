@@ -32,6 +32,9 @@ liquibase:
     
 logging:
   level:
+    #root: DEBUG
     org.mybatis: DEBUG
+    org.apache.http.wire: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
     com.example.springboot: DEBUG
         
