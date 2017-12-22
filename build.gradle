@@ -18,7 +18,12 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
+def appName = 'com.example.springboot'
+
 repositories {
+	flatDir {
+       dirs "APP_HOME/$appName/config/library"
+   	}
 	mavenCentral()
 }
 
@@ -71,7 +76,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-def appName = 'com.example.springboot'
+test.onlyIf { false }
 
 task exportAppHome() {
 	doLast {
