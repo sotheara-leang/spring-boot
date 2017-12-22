@@ -48,6 +48,7 @@
 	<logger name="org.springframework.context" level="INFO" additivity="true"/>
 	<logger name="org.springframework.web" level="INFO" additivity="true"/>
 	<logger name="org.mybatis" level="DEBUG" />
+	<logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" />
 	
     <logger name="com.example.springboot" level="DEBUG" />
     

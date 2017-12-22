@@ -38,12 +38,15 @@ public class APIConnector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(APIConnector.class);
 	
-	private static final ObjectMapper objectMapper = new ObjectMapper()
-			.setNodeFactory( JsonNodeFactory.withExactBigDecimals(true) )
+	protected static final ObjectMapper objectMapper = new ObjectMapper();
+		
+	static {
+		objectMapper.setNodeFactory( JsonNodeFactory.withExactBigDecimals(true) )
 			.setSerializationInclusion( Include.NON_NULL )
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		
+	}
+				
 	private String baseUrl;
 	
 	private RestOperations restOperations;
@@ -144,14 +147,14 @@ public class APIConnector {
 						LinkedList<Object> paramValueList = (LinkedList<Object>) requestMultiValueMap.get(paramName);
 						
 						for (Object paramValue : paramValueList) {
-							Object t = paramValue;
+							Object interalParamValue = paramValue;
 							if (paramValue != null) {
 								Class<?> paramValueClass = paramValue.getClass();
 								if (File.class.isAssignableFrom(paramValueClass)) {
-									t = new FileSystemResource((File) paramValue);
+									interalParamValue = new FileSystemResource((File) paramValue);
 								} 
 							}
-							internalMultiValueMap.add(paramName, t);
+							internalMultiValueMap.add(paramName, interalParamValue);
 						}
 					}
 					
@@ -209,13 +212,16 @@ public class APIConnector {
 		return response;
 	}
 	
-	private String serialize(Object request) {
+	protected String serialize(Object object) {
 		String json = null;
 		try {
-			json = objectMapper.writeValueAsString( request );
+			if (object != null) {
+				json = objectMapper.writeValueAsString( object );
+			}
 		} catch ( JsonProcessingException e ) {
-			logger.error( "Error serialize request: {}", request);
+			logger.error("Error serialize: {}", object);
 		}
+		
 		return json;
 	}
 

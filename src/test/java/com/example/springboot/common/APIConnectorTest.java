@@ -2,11 +2,13 @@ package com.example.springboot.common;
 
 import java.net.URI;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -57,5 +59,14 @@ public class APIConnectorTest extends AbstractWebTest {
 		map.add("files", resourceResource2.getFile());
 		
 		connector.requestMultipart("/api/upload/list", map, String.class);
-	} 
+	}
+	
+	@Test
+	public void testDownload() throws Exception {
+		ByteArrayResource inputStreamResource = connector.get("/resources/styles/main.css", null, ByteArrayResource.class);
+		
+		String response = IOUtils.toString(inputStreamResource.getInputStream());
+		
+		System.out.println(response);
+	}
 }
