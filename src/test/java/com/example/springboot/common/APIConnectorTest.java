@@ -36,7 +36,9 @@ public class APIConnectorTest extends AbstractWebTest {
 	
 	@Test
 	public void testGetUser() throws Exception {
-		connector.get("/api/user/1", null, UserDto.class);
+		UserDto userDto = connector.get("/api/user/1", null, UserDto.class);
+		
+		System.out.println(userDto);
 	} 
 	
 	@Test

@@ -1,7 +1,6 @@
 package com.example.springboot.common.connector;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -38,26 +37,28 @@ public class APIConnector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(APIConnector.class);
 	
-	protected static final ObjectMapper objectMapper = new ObjectMapper();
-		
-	static {
-		objectMapper.setNodeFactory( JsonNodeFactory.withExactBigDecimals(true) )
-			.setSerializationInclusion( Include.NON_NULL )
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-	}
-				
 	private String baseUrl;
 	
 	private RestOperations restOperations;
+	
+	private ObjectMapper objectMapper;
 	
 	public APIConnector(RestTemplate restTemplate) {
 		this("", restTemplate);
 	}
 	
 	public APIConnector(String baseUrl, RestOperations restOperations) {
+		this(baseUrl, restOperations, defaultObjectMapper());
+	}
+	
+	public APIConnector(RestOperations restOperations, ObjectMapper objectMapper) {
+		this("", restOperations, objectMapper);
+	}
+	
+	public APIConnector(String baseUrl, RestOperations restOperations, ObjectMapper objectMapper) {
 		this.baseUrl = baseUrl;
 		this.restOperations = restOperations;
+		this.objectMapper = objectMapper;
 	}
 
 	// GET
@@ -87,13 +88,7 @@ public class APIConnector {
 	}
 	
 	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
-		return request(url, method, request, new ParameterizedTypeReference<RES>() {
-
-			@Override
-			public Type getType() {
-				return responseClass;
-			}
-		});
+		return request(url, method, request, ParameterizedTypeReference.forType(responseClass));
 	}
 	
 	public <RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException, URISyntaxException {
@@ -105,12 +100,7 @@ public class APIConnector {
 	}
 	
 	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws URISyntaxException, RestClientException {
-		return requestMultipart(url, requestMap, new ParameterizedTypeReference<RES>() {
-			@Override
-			public Type getType() {
-				return responseClass;
-			}
-		});
+		return requestMultipart(url, requestMap, ParameterizedTypeReference.forType(responseClass));
 	}
 	
 	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
@@ -216,13 +206,23 @@ public class APIConnector {
 		String json = null;
 		try {
 			if (object != null) {
-				json = objectMapper.writeValueAsString( object );
+				json = objectMapper.writeValueAsString(object);
 			}
 		} catch ( JsonProcessingException e ) {
 			logger.error("Error serialize: {}", object);
 		}
 		
 		return json;
+	}
+	
+	protected static ObjectMapper defaultObjectMapper() {
+		ObjectMapper objectMapper = new ObjectMapper()
+				.setNodeFactory(JsonNodeFactory.withExactBigDecimals(true))
+				.setSerializationInclusion(Include.NON_NULL)
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		
+		return objectMapper;
 	}
 
 	public String getBaseUrl() {
