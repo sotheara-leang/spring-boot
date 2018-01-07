@@ -78,6 +78,16 @@ dependencies {
 
 test.onlyIf { false }
 
+springBoot {
+    executable = true
+    embeddedLaunchScriptProperties = [
+    	initInfoProvides: project.name,
+        initInfoShortDescription: 'Spring Boot Sample Application',
+    	initInfoDescription: 'Spring Boot Sample Application',
+        mode: 'service'
+  	]
+}
+
 task exportAppHome() {
 	doLast {
 		copy {
