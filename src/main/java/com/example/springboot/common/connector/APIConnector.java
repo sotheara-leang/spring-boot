@@ -119,7 +119,7 @@ public class APIConnector {
 		
 		try {
 			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REQUEST TO EXTERNAL API >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-			logger.debug("Url: {}", fullUrl);
+			logger.debug("Url: {} {}", method, fullUrl);
 			logger.debug("Headers: {}", serialize(headers));
 			logger.debug("Request: {}", serialize(request));
 			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
