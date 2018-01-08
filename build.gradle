@@ -88,15 +88,37 @@ springBoot {
   	]
 }
 
-task exportAppHome() {
+def deployDir = "${buildDir}/deploy"
+def jarFileName = "${project.name}-${project.version}"
+
+task exportDeploy(dependsOn: ['exportAppHome', 'exportJar', 'exportConfigFile']) {}
+
+task exportAppHome {
 	doLast {
 		copy {
-			from "APP_HOME/$appName/"
-			into "${buildDir}/APP_HOME/$appName/"
+			from "APP_HOME/${appName}/"
+			into "${deployDir}/APP_HOME/${appName}/"
 			exclude '**/log/'
 		}
 	}
 }
 
-build.finalizedBy(exportAppHome)
+task exportJar(dependsOn: build) {
+	doLast {
+		copy {
+			from "${buildDir}/libs/${jarFileName}.jar"
+			into "${deployDir}"
+		}
+	}
+}
+
+task exportConfigFile {
+	doLast {
+		def confFile = new File("${deployDir}/${jarFileName}.conf")
+		def content = "JAVA_OPTS=" + "\"-DAPP_HOME=${deployDir}/APP_HOME -Dspring.config.location=${deployDir}/APP_HOME/${appName}/config/\""
+		confFile.write content
+	}
+}
+
+build.finalizedBy(exportDeploy)
 
