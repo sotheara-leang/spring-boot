@@ -1,14 +1,14 @@
 app:
-  config-home: ${APP_HOME}/${spring.application.name}/config
+  config-home: ${APP_HOME}/config
 
 spring:
   application:
     name: com.example.springboot
   thymeleaf:
-    prefix: file:${APP_HOME}/${spring.application.name}/web/views/
+    prefix: file:${APP_HOME}/web/views/
     check-template: true
   resources:
-    static-locations: file:${APP_HOME}/${spring.application.name}/web/resources/
+    static-locations: file:${APP_HOME}/web/resources/
   mvc:
     static-path-pattern: /resources/**
   h2:

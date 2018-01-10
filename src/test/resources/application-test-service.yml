@@ -1,5 +1,5 @@
 app:
-  config-home: ${APP_HOME}/${spring.application.name}/config
+  config-home: ${APP_HOME}/config
 
 spring:
   application:

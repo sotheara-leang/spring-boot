@@ -1,7 +1,7 @@
 <!DOCTYPE logback>
 <configuration>
 
-	<property name="rootDir" value="${APP_HOME}/com.example.springboot/log" />
+	<property name="rootDir" value="${APP_HOME}/log" />
 	<property name="archiveDir" value="${rootDir}/archived" />
 	<property name="fileSize" value="10MB" />
 	

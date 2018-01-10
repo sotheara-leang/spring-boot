@@ -18,11 +18,9 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
-def appName = 'com.example.springboot'
-
 repositories {
 	flatDir {
-       dirs "APP_HOME/$appName/config/library"
+       dirs "APP_HOME/config/library"
    	}
 	mavenCentral()
 }
@@ -96,8 +94,8 @@ task exportDeploy(dependsOn: ['exportAppHome', 'exportJar', 'exportConfigFile'])
 task exportAppHome {
 	doLast {
 		copy {
-			from "APP_HOME/${appName}/"
-			into "${deployDir}/APP_HOME/${appName}/"
+			from "APP_HOME/"
+			into "${deployDir}/APP_HOME/"
 			exclude '**/log/'
 		}
 	}
