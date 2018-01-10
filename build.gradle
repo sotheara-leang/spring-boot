@@ -35,9 +35,9 @@ dependencies {
 	
 	compile('org.springframework.boot:spring-boot-actuator-docs')
 	
-	compile('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.1')
-	
 	compile('org.springframework.boot:spring-boot-starter-jdbc')
+	
+	compile('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.1')
 	
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
 	
@@ -78,15 +78,54 @@ dependencies {
 
 test.onlyIf { false }
 
-task exportAppHome() {
+springBoot {
+    executable = true
+    embeddedLaunchScriptProperties = [
+    	initInfoProvides: project.name,
+        initInfoShortDescription: 'Spring Boot Sample Application',
+    	initInfoDescription: 'Spring Boot Sample Application',
+        mode: 'service'
+  	]
+}
+
+def deployDir = "${buildDir}/deploy"
+def jarFileName = "${project.name}-${project.version}"
+
+task exportDeploy(dependsOn: ['exportAppHome', 'exportJar', 'exportConfigFile']) {}
+
+task exportAppHome {
 	doLast {
 		copy {
-			from "APP_HOME/$appName/"
-			into "${buildDir}/APP_HOME/$appName/"
+			from "APP_HOME/${appName}/"
+			into "${deployDir}/APP_HOME/${appName}/"
 			exclude '**/log/'
 		}
 	}
 }
 
-build.finalizedBy(exportAppHome)
+task exportJar(dependsOn: build) {
+	doLast {
+		copy {
+			from "${buildDir}/libs/${jarFileName}.jar"
+			into "${deployDir}"
+		}
+	}
+}
 
+task exportConfigFile {
+	doLast {
+		def confFile = new File("${deployDir}/${jarFileName}.conf")
+		def content = "JAVA_OPTS=" + "\"-DAPP_HOME=${deployDir}/APP_HOME -Dspring.config.location=${deployDir}/APP_HOME/${appName}/config/\""
+		confFile.write content
+	}
+}
+
+build.finalizedBy(exportDeploy)
+
+
+task hello {
+    doLast {
+        println project.group
+        println project.version
+    }
+}
