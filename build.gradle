@@ -111,19 +111,6 @@ task exportJar(dependsOn: build) {
 		}
 	}
 }
-<<<<<<< HEAD
-=======
-
-task exportConfigFile {
-	doLast {
-		def confFile = new File("${deployDir}/${jarFileName}.conf")
-		def content = "JAVA_OPTS=" + "\"-DAPP_HOME=${deployDir}/APP_HOME -Dspring.config.location=${deployDir}/APP_HOME/${appName}/config/\""
-		confFile.write content
-	}
-}
-
-build.finalizedBy(exportDeploy)
->>>>>>> branch 'master' of https://github.com/sotheara-leang/spring-boot.git
 
 task exportConfigFile {
 	doLast {
@@ -135,10 +122,3 @@ task exportConfigFile {
 
 build.finalizedBy(exportDeploy)
 
-
-task hello {
-    doLast {
-        println project.group
-        println project.version
-    }
-}
