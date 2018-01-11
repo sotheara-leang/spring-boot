@@ -113,7 +113,7 @@ task exportJar(dependsOn: build) {
 task exportConfigFile {
 	doLast {
 		def confFile = new File("${deployDir}/${jarFileName}.conf")
-		def content = "JAVA_OPTS=" + "\"-DAPP_HOME=${deployDir}/APP_HOME -Dspring.config.location=${deployDir}/APP_HOME/${appName}/config/\""
+		def content = "JAVA_OPTS=" + "\"-DAPP_HOME=${deployDir}/APP_HOME -Dspring.config.location=${deployDir}/APP_HOME/config/\""
 		confFile.write content
 	}
 }
