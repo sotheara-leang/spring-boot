@@ -65,8 +65,8 @@ public class SqlLogInterceptor implements Interceptor {
 		String sql = null;
 		
 		try {
-			final StatementHandler handler = (StatementHandler) invocation.getTarget();
-			final BoundSql boundSql = handler.getBoundSql();
+			final StatementHandler stmtHandler = (StatementHandler) invocation.getTarget();
+			final BoundSql boundSql = stmtHandler.getBoundSql();
 	
 			final Object object = boundSql.getParameterObject();
 	
@@ -82,10 +82,9 @@ public class SqlLogInterceptor implements Interceptor {
 				} else {
 					paramValue = findParameterValue(object, paramName);
 				}
-	
-				if (paramValue != null) {
-					sql = sql.replaceFirst("\\?", formatPrimitiveType(paramValue));
-				}
+				
+				sql = sql.replaceFirst("\\?", formatParameterValue(paramValue));
+				
 			}
 		} catch (Exception e) {
 			logger.debug("Error generate SQL: ", sql);
@@ -115,8 +114,11 @@ public class SqlLogInterceptor implements Interceptor {
 		return isObjectMap ? ((Map<?, ?>) obj).get(paramName) : PropertyUtils.getProperty(obj, paramName);
 	}
 	
-	protected String formatPrimitiveType(Object obj) {
-		if (CharSequence.class.isAssignableFrom(obj.getClass())) {
+	protected String formatParameterValue(Object obj) {
+		Class<?> objClass = obj.getClass();
+		
+		if (CharSequence.class.isAssignableFrom(objClass)
+				|| Enum.class.isAssignableFrom( objClass )) {
 			return String.format("'%s'", obj);
 		}
 		return obj.toString();

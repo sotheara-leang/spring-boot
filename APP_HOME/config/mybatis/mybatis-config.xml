@@ -8,6 +8,9 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		<setting name="jdbcTypeForNull" value="NULL"/>
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
 	</settings>
+	<typeHandlers>
+		<typeHandler javaType="com.example.springboot.common.EnumType" handler="com.example.springboot.common.mybatis.handler.EnumTypeHandler"/>
+	</typeHandlers>
 	<plugins>
 		<plugin interceptor="com.example.springboot.common.mybatis.interceptor.SqlLogInterceptor">
 			<property name="prettyPrint" value="false"/>

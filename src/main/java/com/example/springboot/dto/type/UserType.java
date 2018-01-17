@@ -1,8 +1,8 @@
 package com.example.springboot.dto.type;
 
-import com.example.springboot.common.Type;
+import com.example.springboot.common.EnumType;
 
-public enum UserType implements Type<String> {
+public enum UserType implements EnumType<String> {
 	
 	BASIC("01", "Basic user"),
 	ADMIN("02", "Admin user");

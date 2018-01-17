@@ -2,6 +2,8 @@ package com.example.springboot.dto;
 
 import java.io.Serializable;
 
+import com.example.springboot.dto.type.UserType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class UserDto implements Serializable {
 	private Integer id;
 	private String username;
 	private String password;
+	private UserType type;
 	private String lastName;
 	private String firstName;
 	private String roleID;

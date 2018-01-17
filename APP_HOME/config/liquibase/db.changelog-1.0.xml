@@ -11,6 +11,7 @@
 			</column>
 			<column name="username" type="varchar(15)" />
 			<column name="password" type="varchar(50)" />
+			<column name="type" type="varchar(2)" />
 			<column name="last_name" type="varchar(50)" />
 			<column name="first_name" type="varchar(30)" />
 			<column name="role_id" type="bigint" />
@@ -61,6 +62,7 @@
 		<insert tableName="user">
 			<column name="username" value="admin" />
 			<column name="password" value="123" />
+			<column name="type" value="02" />
 			<column name="last_name" value="Leang" />
 			<column name="first_name" value="Sotheara" />
 			<column name="role_id" value="1" />
@@ -68,6 +70,7 @@
 		<insert tableName="user">
 			<column name="username" value="sok" />
 			<column name="password" value="sok" />
+			<column name="type" value="01" />
 			<column name="last_name" value="Ly" />
 			<column name="first_name" value="Sok" />
 			<column name="role_id" value="1" />

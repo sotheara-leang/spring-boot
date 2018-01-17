@@ -28,12 +28,14 @@
 		(
 			username,
 			password,
+			type,
 			last_name,
 			first_name,
 			role_id
 		) VALUES (
 			#{username},
 			#{password},
+			#{type},
 			#{lastName},
 			#{firstName},
 			#{roleID}
@@ -45,6 +47,7 @@
 		(
 			username,
 			password,
+			type,
 			last_name,
 			first_name,
 			role_id
@@ -53,6 +56,7 @@
 			(
 				#{user.username},
 				#{user.password},
+				#{user.type},
 				#{user.lastName},
 				#{user.firstName},
 				#{user.roleID}

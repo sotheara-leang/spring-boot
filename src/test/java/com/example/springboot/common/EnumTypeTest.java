@@ -8,7 +8,7 @@ import com.example.springboot.dto.MyDto;
 import com.example.springboot.dto.type.UserType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TypeTest extends AbstractServiceTest {
+public class EnumTypeTest extends AbstractServiceTest {
 	
 	@Autowired
 	private ObjectMapper objectMapper;

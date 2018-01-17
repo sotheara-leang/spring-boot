@@ -14,6 +14,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import com.example.springboot.AbstractServiceTest;
 import com.example.springboot.dto.UserDto;
 import com.example.springboot.dto.UserFilterDto;
+import com.example.springboot.dto.type.UserType;
 
 public class UserDaoTest extends AbstractServiceTest {
 
@@ -48,6 +49,7 @@ public class UserDaoTest extends AbstractServiceTest {
 		UserDto userDto = UserDto.builder()
 				.username("username")
 				.password("123")
+				.type( UserType.ADMIN )
 				.lastName("leang")
 				.firstName("sotheara")
 				.roleID("2")
@@ -67,6 +69,7 @@ public class UserDaoTest extends AbstractServiceTest {
 			UserDto userDto = UserDto.builder()
 					.username("user_" + (i+1))
 					.password("123")
+					.type( UserType.BASIC )
 					.lastName("leang_" + (i+1))
 					.firstName("sotheara_" + (i+1))
 					.roleID("2")
@@ -89,6 +92,7 @@ public class UserDaoTest extends AbstractServiceTest {
 			UserDto userDto = UserDto.builder()
 					.username("user_" + (i > 5 ? "ssssssssssssssssssss" : (i+1)))
 					.password("123")
+					.type( UserType.BASIC )
 					.lastName("leang_" + (i+1))
 					.firstName("sotheara_" + (i+1))
 					.roleID("2")
