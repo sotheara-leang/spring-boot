@@ -6,6 +6,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -20,6 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -110,65 +112,83 @@ public class APIConnector {
 		return request(url, HttpMethod.POST, headers, requestMap, responseType);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <RES> RES request(String url, HttpMethod method, HttpHeaders headers, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
-		RES response = null;
+	
+	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+		Assert.notNull(url, "url must not be null");
+		Assert.notNull(method, "method must not be null");
+		Assert.notNull(responseType, "responseType must not be null");
 		
-		String fullUrl = baseUrl + url;
-		long t1 = System.currentTimeMillis();
+		RequestEntity<REQ> requestEntity = new RequestEntity<REQ>(request, headers, method, new URI(url));  
+		ResponseEntity<RES> responeEntity = request(requestEntity, responseType);
+		return responeEntity.getBody();
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	public <REQ, RES> ResponseEntity<RES> request(RequestEntity<REQ> requestEntity, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+		Assert.notNull(requestEntity, "requestEntity must not be null");
+		Assert.notNull(responseType, "responseType must not be null");
 		
-		try {
-			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REQUEST TO EXTERNAL API >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-			logger.debug("Url: {} {}", method, fullUrl);
-			logger.debug("Headers: {}", serialize(headers));
-			logger.debug("Request: {}", serialize(request));
-			logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		HttpHeaders headers = requestEntity.getHeaders();
+		if (headers == null || headers.isEmpty()) {
+			headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
+		}
+		
+		URI url = requestEntity.getUrl();
+		if (!url.isAbsolute()) {
+			url = new URI(baseUrl + url.getPath());
+		}
+		
+		REQ request = requestEntity.getBody();
+		HttpMethod method = requestEntity.getMethod();
+		
+		logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REQUEST TO EXTERNAL API >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		logger.debug("Url: {} {}", method, url.toString());
+		logger.debug("Headers: {}", serialize(headers));
+		logger.debug("Request: {}", serialize(request));
+		logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		
+		REQ internalRequest = request;
+		
+		if (MediaType.MULTIPART_FORM_DATA.equals(headers.getContentType()) && MultiValueMap.class.isAssignableFrom(request.getClass())) {
+			MultiValueMap<String, Object> internalMultiValueMap = new LinkedMultiValueMap<String, Object>();
 			
-			Object internalRequest = request;
+			MultiValueMap<String, Object> requestMultiValueMap = (MultiValueMap<String, Object>) request;
+			Set<String> reqParamNames = requestMultiValueMap.keySet();
 			
-			if (headers != null) {
-				if (MediaType.MULTIPART_FORM_DATA.equals(headers.getContentType()) && MultiValueMap.class.isAssignableFrom(request.getClass())) {
-					MultiValueMap<String, Object> internalMultiValueMap = new LinkedMultiValueMap<String, Object>();
-					
-					MultiValueMap<String, Object> requestMultiValueMap = (MultiValueMap<String, Object>) request;
-					Set<String> reqParamNames = requestMultiValueMap.keySet();
-					
-					for (String paramName : reqParamNames) {
-						LinkedList<Object> paramValueList = (LinkedList<Object>) requestMultiValueMap.get(paramName);
-						
-						for (Object paramValue : paramValueList) {
-							Object interalParamValue = paramValue;
-							if (paramValue != null) {
-								Class<?> paramValueClass = paramValue.getClass();
-								if (File.class.isAssignableFrom(paramValueClass)) {
-									interalParamValue = new FileSystemResource((File) paramValue);
-								} 
-							}
-							internalMultiValueMap.add(paramName, interalParamValue);
-						}
+			for (String paramName : reqParamNames) {
+				LinkedList<Object> paramValueList = (LinkedList<Object>) requestMultiValueMap.get(paramName);
+				
+				for (Object paramValue : paramValueList) {
+					Object interalParamValue = paramValue;
+					if (paramValue != null) {
+						Class<?> paramValueClass = paramValue.getClass();
+						if (File.class.isAssignableFrom(paramValueClass)) {
+							interalParamValue = new FileSystemResource((File) paramValue);
+						} 
 					}
-					
-					internalRequest = internalMultiValueMap;
+					internalMultiValueMap.add(paramName, interalParamValue);
 				}
 			}
 			
-			RequestEntity<Object> reqEntity = new RequestEntity<Object>(internalRequest, headers, method, new URI(fullUrl));  
-			ResponseEntity<RES> resEntity = restOperations.exchange(reqEntity, responseType);
-			response = resEntity.getBody();
+			internalRequest = (REQ) internalMultiValueMap;
+		}
+		
+		long t1 = System.currentTimeMillis();
+		
+		ResponseEntity<RES> responseEntity = null;
+		
+		try {
+			RequestEntity<REQ> internalRequestEntity = new RequestEntity<REQ>(internalRequest, headers, method, url);  
+			responseEntity = restOperations.exchange(internalRequestEntity, responseType);
 			
 			logger.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< RESPONSE FROM EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-			logger.debug("Status code: {}", resEntity.getStatusCode());
-			logger.debug("Headers: {}", serialize(resEntity.getHeaders()));
-			logger.debug("Response: {}", serialize (response));
+			logger.debug("Status code: {}", responseEntity.getStatusCode());
+			logger.debug("Headers: {}", serialize(responseEntity.getHeaders()));
+			logger.debug("Response: {}", serialize (responseEntity.getBody()));
 			logger.debug("Interval time: {}ms", System.currentTimeMillis() - t1);
 			logger.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-			
-		} catch (URISyntaxException e) {
-			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ERROR REQUEST TO EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-			logger.error("Url is incorrect: {}", fullUrl, e);
-			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-			
-			throw e;
 			
 		} catch (Exception e) {
 			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ERROR REQUEST TO EXTERNAL API <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -199,7 +219,7 @@ public class APIConnector {
 			throw e;
 		}
 		
-		return response;
+		return responseEntity;
 	}
 	
 	protected String serialize(Object object) {
