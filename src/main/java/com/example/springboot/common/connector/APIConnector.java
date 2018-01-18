@@ -112,7 +112,6 @@ public class APIConnector {
 		return request(url, HttpMethod.POST, headers, requestMap, responseType);
 	}
 	
-	
 	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
 		Assert.notNull(url, "url must not be null");
 		Assert.notNull(method, "method must not be null");
@@ -203,7 +202,7 @@ public class APIConnector {
 				} else if (cause instanceof ConnectTimeoutException) {
 					logger.error("Connection timeout to external API.");
 				} else if (cause instanceof SocketTimeoutException) {
-					logger.error("Read time out to external API.");
+					logger.error("Read timeout to external API.");
 				} else if (cause instanceof SocketException) {
 					logger.error("Error creating/accessing connection.");
 				} else {
