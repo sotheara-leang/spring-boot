@@ -19,6 +19,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.springboot.common.EnumType;
 import com.example.springboot.common.mybatis.util.SqlFormatter;
 
 @Intercepts({ 
@@ -104,14 +105,22 @@ public class SqlLogInterceptor implements Interceptor {
 		final Integer point = paramName.indexOf(".");
 		final Boolean isObjectMap = Map.class.isAssignableFrom(objClass);
 		
+		Object paramValue = null;
+		
 		if (point != -1) {
 			final String childParamName = paramName.substring(0, point);
 			final Object childObj = isObjectMap ? ((Map<?, ?>) obj).get(childParamName) : PropertyUtils.getProperty(obj, childParamName);
 			
-			return findParameterValue(childObj, paramName.substring(point + 1));
+			paramValue = findParameterValue(childObj, paramName.substring(point + 1));
 		}
 		
-		return isObjectMap ? ((Map<?, ?>) obj).get(paramName) : PropertyUtils.getProperty(obj, paramName);
+		paramValue = isObjectMap ? ((Map<?, ?>) obj).get(paramName) : PropertyUtils.getProperty(obj, paramName);
+		
+		if (paramValue instanceof EnumType) {
+			paramValue = ((EnumType<?>) paramValue).getValue();
+		}
+		
+		return paramValue;
 	}
 	
 	protected String formatParameterValue(Object obj) {
