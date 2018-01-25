@@ -24,4 +24,9 @@ public class UserServiceImpl implements UserService {
 	public int insertUserBatch(List<UserDto> userList) {
 		return userDao.insertUserBatch(userList);
 	}
+
+	@Override
+	public void doSth() {
+
+	}
 }

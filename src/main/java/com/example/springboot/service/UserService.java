@@ -8,6 +8,8 @@ import com.example.springboot.dto.UserDto;
 
 public interface UserService {
 
+	void doSth();
+	
 	UserDto selectUser(Integer id);
 	
 	@Transactional

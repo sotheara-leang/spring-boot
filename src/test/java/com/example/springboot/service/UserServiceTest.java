@@ -16,4 +16,9 @@ public class UserServiceTest extends AbstractServiceTest {
 		UserDto selectUser = userService.selectUser( 1 );
 		System.out.println( selectUser );
 	}
+	
+	@Test
+	public void doTest2() {
+		userService.doSth();
+	}
 }

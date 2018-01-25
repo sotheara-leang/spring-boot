@@ -6,6 +6,6 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<import resource="batch-job.xml"/>
-	<import resource="batch-quartz.xml"/>
+	<!-- <import resource="batch-quartz.xml"/> -->
 	
 </beans>
