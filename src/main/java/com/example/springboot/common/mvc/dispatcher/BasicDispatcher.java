@@ -20,7 +20,6 @@ import org.springframework.util.Assert;
 
 import com.example.springboot.common.mvc.annotation.Handler;
 import com.example.springboot.common.mvc.annotation.RequestMapping;
-import com.example.springboot.common.mvc.filter.FilterChain;
 import com.example.springboot.common.mvc.model.MappingContext;
 import com.example.springboot.common.mvc.model.Message;
 import com.example.springboot.common.mvc.model.MessageHeaders;
@@ -31,8 +30,6 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	private static Logger logger = LoggerFactory.getLogger(BasicDispatcher.class);
 	
 	protected ApplicationContext applicationContext;
-	
-	protected FilterChain filterChain;
 	
 	private String basePackage;
 	
@@ -127,14 +124,6 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				}
 			}
 		}
-	}
-
-	public FilterChain getFilterChain() {
-		return filterChain;
-	}
-
-	public void setFilterChain(FilterChain filterChain) {
-		this.filterChain = filterChain;
 	}
 
 	public String getBasePackage() {

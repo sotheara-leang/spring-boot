@@ -8,7 +8,7 @@
 	<bean id="methodAroundAspect" class="com.example.springboot.common.mvc.aop.aspect.MethodAroundAspect">
 		<constructor-arg index="0">
 			<list>
-				<bean class="com.example.springboot.service.filter.LogServiceFilter" />
+				<bean class="com.example.springboot.service.filter.LoggingServiceFilter" />
 				<bean class="com.example.springboot.service.filter.TransactionServiceFilter" />
 			</list>
 		</constructor-arg>

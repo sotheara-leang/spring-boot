@@ -1,4 +1,4 @@
-package com.example.springboot.handler;
+package com.example.springboot.mvc.handler;
 
 import com.example.springboot.common.mvc.annotation.Handler;
 import com.example.springboot.common.mvc.annotation.RequestMapping;
