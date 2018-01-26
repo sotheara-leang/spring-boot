@@ -4,5 +4,5 @@ import com.example.springboot.common.mvc.model.Message;
 
 public interface Filter {
 
-	void doFilter(Message<Object> request, Message<Object> response, FilterChain filterChain) throws Throwable;
+	void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable;
 }

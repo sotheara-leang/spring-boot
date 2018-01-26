@@ -10,6 +10,10 @@ public class MethodInvocation {
 	private Object[] params;
 	private Object target;
 	
+	public MethodInvocation( Object target, Method method ) {
+		this(target, method, null);
+	}
+	
 	public MethodInvocation( Object target, Method method, Object[] params ) {
 		this.method = method;
 		this.params = params;
@@ -17,6 +21,10 @@ public class MethodInvocation {
 	}
 
 	public Object proceed() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return method.invoke( target, params );
+	}
+	
+	public Object proceed(Object... params) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return method.invoke( target, params );
 	}
 

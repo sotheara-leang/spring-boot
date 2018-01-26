@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 public @interface RequestMapping {
 
 	String path();
+	
+	Class<?> accept() default Object.class;
 }

@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionServiceFilter implements Filter {
 
 	@Override
-	public void doFilter(Message<Object> request, Message<Object> response, FilterChain filterChain) throws Throwable {
+	public void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable {
 		log.debug("Before invoke TxServiceFilter");
 		
 		filterChain.doFilter(request, response);

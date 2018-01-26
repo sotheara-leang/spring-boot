@@ -21,7 +21,6 @@ public class MethodAroundAspect {
 		this.filterList = filterList;
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public Object aroundMethod(ProceedingJoinPoint jp) throws Throwable {
 		List<Filter> internalFilterList = new ArrayList<Filter>( filterList );;
 		internalFilterList.add(new MethodInvocationFilter());
@@ -32,9 +31,9 @@ public class MethodAroundAspect {
 		Method method = signature.getMethod();
 		
 		Message request = new Message();
-		request.setBody( new MethodInvocation(jp.getTarget(), method, jp.getArgs()) );
+		request.setBody(new MethodInvocation(jp.getTarget(), method, jp.getArgs()));
 		
-		Message<Object> response = new Message<Object>();
+		Message response = new Message();
 		
 		filterChain.doFilter(request, response);
 		
@@ -44,7 +43,7 @@ public class MethodAroundAspect {
 	class MethodInvocationFilter implements Filter {
 
 		@Override
-		public void doFilter( Message<Object> request, Message<Object> response, FilterChain filterChain ) throws Throwable {
+		public void doFilter( Message request, Message response, FilterChain filterChain ) throws Throwable {
 			if (request == null || (request.getBody() != null 
 					&& MethodInvocation.class.isAssignableFrom( request.getBody().getClass() ))) {
 				

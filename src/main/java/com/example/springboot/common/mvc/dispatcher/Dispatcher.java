@@ -4,5 +4,5 @@ import com.example.springboot.common.mvc.model.Message;
 
 public interface Dispatcher {
 
-	void dispatch(Message<Object> request, Message<Object> response);
+	void dispatch(Message request, Message response) throws Throwable;
 }

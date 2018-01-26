@@ -1,18 +1,18 @@
 package com.example.springboot.common.mvc.model;
 
-public class Message<T> {
+public class Message {
 
 	private MessageHeaders headers;
 	
-	private T body;
+	private Object body;
 	
 	public Message() {}
 	
-	public Message(T body) {
+	public Message(Object body) {
 		this(null, body);
 	}
 	
-	public Message(MessageHeaders headers, T body) {
+	public Message(MessageHeaders headers, Object body) {
 		this.headers = headers;
 		this.body = body;
 	}
@@ -25,11 +25,11 @@ public class Message<T> {
 		this.headers = headers;
 	}
 
-	public T getBody() {
+	public Object getBody() {
 		return body;
 	}
 
-	public void setBody( T body ) {
+	public void setBody( Object body ) {
 		this.body = body;
 	}
 

@@ -16,7 +16,7 @@ public class BasicFilterChain implements FilterChain {
 	}
 
 	@Override
-	public void doFilter(Message<Object> request, Message<Object> response) throws Throwable {
+	public void doFilter(Message request, Message response) throws Throwable {
 		if (this.iterator == null) {
 			this.iterator = this.filterList.iterator();
 		}
