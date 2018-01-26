@@ -1,4 +1,4 @@
-package com.example.springboot.common.invocation;
+package com.example.springboot.common.mvc.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

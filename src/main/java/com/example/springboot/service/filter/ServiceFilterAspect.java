@@ -1,4 +1,4 @@
-package com.example.springboot.filterchain;
+package com.example.springboot.service.filter;
 
 import java.util.List;
 
@@ -8,22 +8,22 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.springboot.common.invocation.BasicFilterChain;
-import com.example.springboot.common.invocation.FilterChain;
-import com.example.springboot.common.invocation.Holder;
+import com.example.springboot.common.mvc.Holder;
+import com.example.springboot.common.mvc.filter.BasicFilterChain;
+import com.example.springboot.common.mvc.filter.FilterChain;
 
 @Aspect
 @Component
-public class ServiceAop {
+public class ServiceFilterAspect {
 	
 	private List<ServiceFilter> serviceFilterList;
 	
 	@Autowired
-	public ServiceAop(List<ServiceFilter> serviceFilterList) {
+	public ServiceFilterAspect(List<ServiceFilter> serviceFilterList) {
 		this.serviceFilterList = serviceFilterList;
 	}
 
-	@Around("execution (* com.example.springboot.service..*(..))")
+	@Around("execution (* com.example.springboot.service.api..*(..))")
 	public Object aroundMethods( ProceedingJoinPoint jointPoint ) throws Throwable {
 		ServiceFilter filter = new ServiceFilter() {
 			
@@ -41,7 +41,7 @@ public class ServiceAop {
 		
 		Holder response = new Holder();
 		
-		filterChain.doFilter( new Holder(jointPoint), response );
+		filterChain.doFilter(new Holder(jointPoint), response);
 		
 		return response.getData();
 	}

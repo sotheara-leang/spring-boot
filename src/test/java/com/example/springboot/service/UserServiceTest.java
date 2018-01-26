@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.springboot.AbstractServiceTest;
 import com.example.springboot.dto.UserDto;
+import com.example.springboot.service.api.UserService;
 
 public class UserServiceTest extends AbstractServiceTest {
 

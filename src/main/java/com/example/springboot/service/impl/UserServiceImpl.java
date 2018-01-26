@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.springboot.dao.UserDao;
 import com.example.springboot.dto.UserDto;
-import com.example.springboot.service.UserService;
+import com.example.springboot.service.api.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
