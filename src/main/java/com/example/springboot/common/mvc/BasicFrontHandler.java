@@ -18,7 +18,6 @@ public class BasicFrontHandler implements FrontHandler {
 		this.dispatcher = dispatcher;
 	}
 
-	@SuppressWarnings( "unchecked" )
 	@Override
 	public Message execute( Message request ) throws Throwable {
 		Message response = new Message();

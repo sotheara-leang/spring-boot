@@ -1,6 +1,6 @@
 package com.example.springboot.conf;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +10,7 @@ import com.example.springboot.common.mvc.FrontHandler;
 import com.example.springboot.common.mvc.dispatcher.BasicDispatcher;
 import com.example.springboot.common.mvc.dispatcher.Dispatcher;
 import com.example.springboot.common.mvc.filter.BasicFilterChain;
+import com.example.springboot.common.mvc.filter.Filter;
 import com.example.springboot.common.mvc.filter.FilterChain;
 import com.example.springboot.mvc.filter.LoggingFilter;
 
@@ -24,9 +25,8 @@ public class LocalMvcConfig {
 	}
 	
 	@Bean
-	public FilterChain filterChain() {
-		BasicFilterChain filterChain = new BasicFilterChain( Arrays.asList( loggingFilter() ) );
-		return filterChain;
+	public FilterChain filterChain(List<Filter> filterList) {
+		return new BasicFilterChain( filterList );
 	}
 	
 	@Bean
@@ -35,7 +35,7 @@ public class LocalMvcConfig {
 	}
 	
 	@Bean
-	public FrontHandler frontHandler() {
-		return new BasicFrontHandler( filterChain(), dispatcher() );
+	public FrontHandler frontHandler(FilterChain filterChain, Dispatcher dispatcher) {
+		return new BasicFrontHandler( filterChain, dispatcher );
 	}
 }

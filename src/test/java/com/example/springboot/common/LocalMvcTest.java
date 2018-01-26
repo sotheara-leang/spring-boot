@@ -7,7 +7,7 @@ import com.example.springboot.AbstractServiceTest;
 import com.example.springboot.common.mvc.FrontHandler;
 import com.example.springboot.common.mvc.model.Message;
 import com.example.springboot.common.mvc.model.MessageHeaders;
-import com.example.springboot.dto.UserDto;
+import com.example.springboot.dto.MyDto;
 
 public class LocalMvcTest extends AbstractServiceTest {
 
@@ -15,14 +15,28 @@ public class LocalMvcTest extends AbstractServiceTest {
 	private FrontHandler frontHandler;
 	
 	@Test
-	public void testDispatcher() throws Throwable {
+	public void testHandle1() throws Throwable {
 		MessageHeaders headers = new MessageHeaders();
-		headers.put( MessageHeaders.REQ_PATH, "/myHandler" );
+		headers.put( MessageHeaders.REQ_PATH, "/handle1" );
 		
-		UserDto userDto = new UserDto();
+		Message request = new Message(headers, new MyDto());
 		
-		Message request = new Message(headers, userDto);
+		Message response = frontHandler.execute( request );
 		
-		frontHandler.execute( request );
+		System.out.println( request );
+		System.out.println( response );
+	}
+	
+	@Test
+	public void testHandle2() throws Throwable {
+		MessageHeaders headers = new MessageHeaders();
+		headers.put( MessageHeaders.REQ_PATH, "/handle2" );
+		
+		Message request = new Message(headers, new MyDto());
+		
+		Message response = frontHandler.execute( request );
+		
+		System.out.println( request );
+		System.out.println( response );
 	}
 }

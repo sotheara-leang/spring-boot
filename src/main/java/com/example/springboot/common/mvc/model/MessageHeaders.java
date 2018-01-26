@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class MessageHeaders {
@@ -48,8 +49,8 @@ public class MessageHeaders {
 		return Collections.unmodifiableCollection(this.headers.values());
 	}
 	
-	public Object put(String key, Object value) {
-		throw new UnsupportedOperationException("MessageHeaders is immutable");
+	public void put(String key, Object value) {
+		headers.put( key, value );
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -69,8 +70,13 @@ public class MessageHeaders {
 		return this.headers;
 	}
 	
-	public void putAll(Map<? extends String, ? extends Object> map) {
-		throw new UnsupportedOperationException("MessageHeaders is immutable");
+	public void putAll(Map<String, Object> map) {
+		Set<Entry<String, Object>> entrySet = map.entrySet();
+		for (Map.Entry<String, Object> entry : entrySet) {
+			if (!containsKey( entry.getKey() )) {
+				this.headers.put(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 	
 	@Override

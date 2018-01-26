@@ -7,11 +7,11 @@ import com.example.springboot.common.mvc.model.Message;
 
 public class BasicFilterChain implements FilterChain {
 
-	private List<? extends Filter> filterList;
+	private List<Filter> filterList;
 
-	private Iterator<? extends Filter> iterator;
+	private Iterator<Filter> iterator;
 
-	public BasicFilterChain(List<? extends Filter> filterList) {
+	public BasicFilterChain(List<Filter> filterList) {
 		this.filterList = filterList;
 	}
 
@@ -27,7 +27,7 @@ public class BasicFilterChain implements FilterChain {
 		}
 	}
 
-	public List<? extends Filter> getFilterList() {
+	public List<Filter> getFilterList() {
 		return filterList;
 	}
 }

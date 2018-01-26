@@ -119,13 +119,13 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			if (requestBody != null && accept.isAssignableFrom( requestBody.getClass() )) {
 				MethodInvocation methodInvocation = mappingContext.getMethodInvocation();
 				
-				Object responseBody = methodInvocation.proceed( request );
-				if (Message.class.isAssignableFrom( requestBody.getClass() )) {
-					Message newResponse = (Message) responseBody;
+				Object returnValue = methodInvocation.proceed( request );
+				if (Message.class.isAssignableFrom( returnValue.getClass() )) {
+					Message newResponse = (Message) returnValue;
 					response.setHeaders( newResponse.getHeaders() );
 					response.setBody( newResponse.getBody() );
 				} else {
-					response.setBody( responseBody );
+					response.setBody( returnValue );
 				}
 			}
 		}

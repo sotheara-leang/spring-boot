@@ -8,5 +8,5 @@ public interface FilterChain {
 
 	void doFilter(Message request, Message response) throws Throwable;
 	
-	List<? extends Filter> getFilterList();
+	List<Filter> getFilterList();
 }
