@@ -66,6 +66,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					
 					if (Modifier.isPublic( modifiers ) && !Modifier.isAbstract( modifiers )) {
 						RequestMapping requestMapping = method.getAnnotation( RequestMapping.class );
+						if (requestMapping == null) {
+							logger.warn( "@RequestMapping not found: {}.{}",  className, methodName );
+							continue;
+						}
+						
 						String path = requestMapping.path();
 						if (StringUtils.isBlank( path )) {
 							logger.warn( "@RequestMapping invalid. Path is blank: {}.{}",  className, methodName );

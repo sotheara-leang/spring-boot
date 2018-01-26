@@ -11,10 +11,10 @@ public class LoggingFilter implements Filter {
 
 	@Override
 	public void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable {
-		log.debug("Before invoke LogServiceFilter");
+		log.debug("Before invoke LoggingFilter");
 		
 		filterChain.doFilter(request, response);
 		
-		log.debug("After invoke LogServiceFilter");
+		log.debug("After invoke LoggingFilter");
 	}
 }

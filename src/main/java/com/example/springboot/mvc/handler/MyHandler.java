@@ -9,7 +9,9 @@ import com.example.springboot.dto.UserDto;
 public class MyHandler {
 
 	@RequestMapping(path = "/myHandler", accept = UserDto.class)
-	public void execute( Message request ) {
-		
+	public Message execute( Message request ) {
+		Message response = new Message();
+		response.setBody( "Success" );
+		return response;
 	}
 }
