@@ -1,15 +1,17 @@
 package com.example.springboot.common.mvc.aop.aspect;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 
 import com.example.springboot.common.mvc.filter.BasicFilterChain;
 import com.example.springboot.common.mvc.filter.Filter;
 import com.example.springboot.common.mvc.filter.FilterChain;
 import com.example.springboot.common.mvc.model.Message;
+import com.example.springboot.common.mvc.model.MethodInvocation;
 
 public class MethodAroundAspect {
 	
@@ -19,15 +21,22 @@ public class MethodAroundAspect {
 		this.filterList = filterList;
 	}
 
-	public Object aroundMethod(ProceedingJoinPoint jointPoint) throws Throwable {
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
+	public Object aroundMethod(ProceedingJoinPoint jp) throws Throwable {
 		List<Filter> internalFilterList = new ArrayList<Filter>( filterList );;
 		internalFilterList.add(new MethodInvocationFilter());
 		
 		BasicFilterChain filterChain = new BasicFilterChain(internalFilterList);
 		
+		MethodSignature signature = (MethodSignature) jp.getSignature();
+		Method method = signature.getMethod();
+		
+		Message request = new Message();
+		request.setBody( new MethodInvocation(jp.getTarget(), method, jp.getArgs()) );
+		
 		Message<Object> response = new Message<Object>();
 		
-		filterChain.doFilter(new Message<Object>(jointPoint), response);
+		filterChain.doFilter(request, response);
 		
 		return response.getBody();
 	}
@@ -37,9 +46,10 @@ public class MethodAroundAspect {
 		@Override
 		public void doFilter( Message<Object> request, Message<Object> response, FilterChain filterChain ) throws Throwable {
 			if (request == null || (request.getBody() != null 
-					&& MethodInvocationProceedingJoinPoint.class.isAssignableFrom( request.getBody().getClass() ))) {
-				MethodInvocationProceedingJoinPoint jp = (MethodInvocationProceedingJoinPoint) request.getBody();
-				response.setBody( jp.proceed() );
+					&& MethodInvocation.class.isAssignableFrom( request.getBody().getClass() ))) {
+				
+				MethodInvocation methodInvocation = (MethodInvocation) request.getBody();
+				response.setBody( methodInvocation.proceed() );
 			} else {
 				filterChain.doFilter( request, response );
 			}
