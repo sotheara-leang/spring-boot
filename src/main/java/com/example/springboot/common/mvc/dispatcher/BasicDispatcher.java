@@ -6,9 +6,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.springboot.common.mvc.Holder;
 import com.example.springboot.common.mvc.filter.FilterChain;
 import com.example.springboot.common.mvc.handler.Handler;
+import com.example.springboot.common.mvc.model.Message;
 
 public class BasicDispatcher implements Dispatcher {
 
@@ -23,7 +23,7 @@ public class BasicDispatcher implements Dispatcher {
 	}
 	
 	@Override
-	public void dispatch(Holder request, Holder response) {
+	public void dispatch(Message<?> request, Message<?> response) {
 		
 	}
 

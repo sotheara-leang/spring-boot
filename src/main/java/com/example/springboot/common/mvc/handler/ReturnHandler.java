@@ -1,8 +1,8 @@
 package com.example.springboot.common.mvc.handler;
 
-import com.example.springboot.common.mvc.Holder;
+import com.example.springboot.common.mvc.model.Message;
 
-public interface ReturnHandler extends Handler {
+public interface ReturnHandler<T> extends Handler {
 
-	Object execute(Holder request);
+	Object execute(Message<T> request);
 }

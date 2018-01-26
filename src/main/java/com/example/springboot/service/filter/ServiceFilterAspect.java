@@ -8,9 +8,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.springboot.common.mvc.Holder;
 import com.example.springboot.common.mvc.filter.BasicFilterChain;
 import com.example.springboot.common.mvc.filter.FilterChain;
+import com.example.springboot.common.mvc.model.Message;
 
 @Aspect
 @Component
@@ -28,21 +28,19 @@ public class ServiceFilterAspect {
 		ServiceFilter filter = new ServiceFilter() {
 			
 			@Override
-			public void doFilter(Holder request, Holder response, FilterChain filterChain) throws Throwable {
-				ProceedingJoinPoint jp = (ProceedingJoinPoint) request.getData();
-				Object proceed = jp.proceed();
-				
-				response.setData(proceed);
+			public void doFilter(Message<Object> request, Message<Object> response, FilterChain filterChain) throws Throwable {
+				ProceedingJoinPoint jp = (ProceedingJoinPoint) request.getBody();
+				response.setBody( jp.proceed() );
 			}
 		};
 		serviceFilterList.add(filter);
 		
 		BasicFilterChain filterChain = new BasicFilterChain(serviceFilterList);
 		
-		Holder response = new Holder();
+		Message<Object> response = new Message<Object>();
 		
-		filterChain.doFilter(new Holder(jointPoint), response);
+		filterChain.doFilter(new Message<Object>(jointPoint), response);
 		
-		return response.getData();
+		return response.getBody();
 	}
 }

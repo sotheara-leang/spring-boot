@@ -3,7 +3,7 @@ package com.example.springboot.common.mvc.filter;
 import java.util.Iterator;
 import java.util.List;
 
-import com.example.springboot.common.mvc.Holder;
+import com.example.springboot.common.mvc.model.Message;
 
 public class BasicFilterChain implements FilterChain {
 
@@ -16,7 +16,7 @@ public class BasicFilterChain implements FilterChain {
 	}
 
 	@Override
-	public void doFilter(Holder request, Holder response) throws Throwable {
+	public void doFilter(Message<Object> request, Message<Object> response) throws Throwable {
 		if (this.iterator == null) {
 			this.iterator = this.filterList.iterator();
 		}

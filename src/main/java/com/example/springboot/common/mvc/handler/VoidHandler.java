@@ -1,8 +1,8 @@
 package com.example.springboot.common.mvc.handler;
 
-import com.example.springboot.common.mvc.Holder;
+import com.example.springboot.common.mvc.model.Message;
 
-public interface VoidHandler extends Handler {
+public interface VoidHandler<T> extends Handler {
 
-	void execute(Holder request);
+	void execute(Message<T> request);
 }

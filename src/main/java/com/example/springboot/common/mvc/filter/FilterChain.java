@@ -1,8 +1,8 @@
 package com.example.springboot.common.mvc.filter;
 
-import com.example.springboot.common.mvc.Holder;
+import com.example.springboot.common.mvc.model.Message;
 
 public interface FilterChain {
 
-	void doFilter(Holder request, Holder response) throws Throwable;
+	void doFilter(Message<Object> request, Message<Object> response) throws Throwable;
 }
