@@ -23,7 +23,7 @@ public class BasicDispatcher implements Dispatcher {
 	}
 	
 	@Override
-	public void dispatch(Message<?> request, Message<?> response) {
+	public void dispatch(Message<Object> request, Message<Object> response) {
 		
 	}
 
