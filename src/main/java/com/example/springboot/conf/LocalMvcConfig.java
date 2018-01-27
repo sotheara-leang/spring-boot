@@ -12,7 +12,7 @@ import com.example.springboot.common.mvc.dispatcher.Dispatcher;
 import com.example.springboot.common.mvc.filter.BasicFilterChain;
 import com.example.springboot.common.mvc.filter.Filter;
 import com.example.springboot.common.mvc.filter.FilterChain;
-import com.example.springboot.mvc.filter.LoggingFilter;
+import com.example.springboot.common.mvc.filter.LoggingFilter;
 
 @Configuration
 public class LocalMvcConfig {

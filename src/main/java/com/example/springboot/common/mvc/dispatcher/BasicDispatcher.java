@@ -58,7 +58,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			Class<? extends Object> beanClass = bean.getClass();
 			String className = beanClass.getName();
 			
-			Method[] methods = beanClass.getMethods();
+			Method[] methods = beanClass.getDeclaredMethods();
 			if (methods != null) {
 				for (Method method : methods) {
 					String methodName = method.getName();
@@ -84,8 +84,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 						
 						int parameterCount = method.getParameterCount();
 						if (parameterCount != 1) {
-							logger.warn( "Mapping method is invalid - must contain only request of type Message: {}.{}",  className, methodName );
+							logger.warn( "Mapping method is invalid - Must contain only one parameter of type Message: {}.{}",  className, methodName );
+							continue;
 						}
+						
+						logger.info("Register handler method: {}.{}", className, methodName) ;
 						
 						Class<?> accept = requestMapping.accept();
 						MethodInvocation methodInvocation = new MethodInvocation( bean, method );
@@ -107,7 +110,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		MessageHeaders headers = request.getHeaders();
 		String requestUrl = headers.getRequestUrl();
 		if (StringUtils.isBlank( requestUrl )) {
-			logger.debug( "Request url is undefine - Skip message : {}", request );
+			logger.warn( "Request url is undefine - Skip message : {}", request );
 			return;
 		}
 		
@@ -115,9 +118,14 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		if (mappingContext != null) {
 			Class<?> accept = mappingContext.getAccept();
 			
+			MethodInvocation methodInvocation = mappingContext.getMethodInvocation();
+			Object handler = methodInvocation.getTarget();
+			Method method = methodInvocation.getMethod();
+			
 			Object requestBody = request.getBody();
 			if (requestBody != null && accept.isAssignableFrom( requestBody.getClass() )) {
-				MethodInvocation methodInvocation = mappingContext.getMethodInvocation();
+				
+				logger.info("Forward {} to {}.{}", request, handler.getClass().getName(), method.getName());
 				
 				Object returnValue = methodInvocation.proceed( request );
 				if (Message.class.isAssignableFrom( returnValue.getClass() )) {
@@ -127,6 +135,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				} else {
 					response.setBody( returnValue );
 				}
+			} else {
+				logger.info("Reject {} to {}.{}", request, handler.getClass().getName(), method.getName());
 			}
 		}
 	}

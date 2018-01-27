@@ -16,7 +16,7 @@ public class MyHandler {
 	}
 	
 	@RequestMapping(path = "/handle2", accept = MyDto.class)
-	public Object handle2( Message request ) {
+	public Object handle2( Message request , Object user) {
 		return "Success handle 2 request";
 	}
 }
