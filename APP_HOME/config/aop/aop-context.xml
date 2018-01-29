@@ -6,10 +6,15 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
 
 	<bean id="methodAroundAspect" class="com.example.springboot.common.mvc.aop.aspect.MethodAroundAspect">
+		<constructor-arg index="0" ref="methodFilterChain" />
+	</bean>
+	
+	<bean id="methodFilterChain" class="com.example.springboot.common.mvc.filter.BasicFilterChain">
 		<constructor-arg index="0">
 			<list>
 				<bean class="com.example.springboot.service.filter.LoggingServiceFilter" />
 				<bean class="com.example.springboot.service.filter.TransactionServiceFilter" />
+				<bean class="com.example.springboot.common.mvc.filter.MethodInvocationFilter" />
 			</list>
 		</constructor-arg>
 	</bean>
