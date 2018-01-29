@@ -67,24 +67,24 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					if (Modifier.isPublic( modifiers ) && !Modifier.isAbstract( modifiers )) {
 						RequestMapping requestMapping = method.getAnnotation( RequestMapping.class );
 						if (requestMapping == null) {
-							logger.warn( "@RequestMapping not found: {}.{}",  className, methodName );
+							logger.error( "@RequestMapping not found: {}.{}",  className, methodName );
 							continue;
 						}
 						
 						String path = requestMapping.path();
 						if (StringUtils.isBlank( path )) {
-							logger.warn( "@RequestMapping invalid. Path is blank: {}.{}",  className, methodName );
+							logger.error( "@RequestMapping invalid. Path is blank: {}.{}",  className, methodName );
 							continue;
 						}
 						
 						if (mappingContextMap.get( path ) != null) {
-							logger.warn( "@RequestMapping invalid. Path is dupplicated: {}.{}",  className, methodName );
+							logger.error( "@RequestMapping invalid. Path is dupplicated: {}.{}",  className, methodName );
 							continue;
 						}
 						
 						int parameterCount = method.getParameterCount();
 						if (parameterCount != 1) {
-							logger.warn( "Mapping method is invalid - Must contain only one parameter of type Message: {}.{}",  className, methodName );
+							logger.error( "Mapping method is invalid - Must contain only one parameter of type Message: {}.{}",  className, methodName );
 							continue;
 						}
 						
@@ -124,10 +124,16 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			
 			Object requestBody = request.getBody();
 			if (requestBody != null && accept.isAssignableFrom( requestBody.getClass() )) {
-				
 				logger.info("Forward {} to {}.{}", request, handler.getClass().getName(), method.getName());
+
+				Object returnValue = null;
+				try {
+					returnValue = methodInvocation.proceed( request );
+				} catch (Exception e) {
+					logger.error( "Error handle request message: {}", request );
+					throw e;
+				}
 				
-				Object returnValue = methodInvocation.proceed( request );
 				if (Message.class.isAssignableFrom( returnValue.getClass() )) {
 					Message newResponse = (Message) returnValue;
 					response.setHeaders( newResponse.getHeaders() );
