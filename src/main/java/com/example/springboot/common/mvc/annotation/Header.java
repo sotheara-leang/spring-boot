@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public @interface Header {
 
-	String name() default "";
+	String value() default "";
 	
 	boolean required() default false;
 }

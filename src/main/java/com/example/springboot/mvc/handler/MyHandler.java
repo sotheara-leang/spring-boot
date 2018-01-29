@@ -23,7 +23,7 @@ public class MyHandler {
 	}
 	
 	@RequestMapping(path = "/handle3")
-	public Object handle3( @Header String myHeader, @Body MyDto myDto ) {
+	public Object handle3( @Header String myHeader, @Header("intHeader") Integer customHeader, @Body MyDto myDto ) {
 		return "Success handle 2 request";
 	}
 }

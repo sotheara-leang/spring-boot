@@ -58,6 +58,7 @@ public class LocalMvcTest extends AbstractServiceTest {
 		MessageHeaders headers = new MessageHeaders();
 		headers.put( MessageHeaders.REQ_PATH, "/handle3" );
 		headers.put( "myHeader", "Hello" );
+		headers.put( "intHeader", 2 );
 		
 		Message request = new Message(headers, new MyDto());
 		
