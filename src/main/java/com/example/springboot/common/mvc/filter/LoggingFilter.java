@@ -13,7 +13,12 @@ public class LoggingFilter implements Filter {
 	public void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable {
 		logger.debug("Accept request message: {}", request);
 		
-		filterChain.doFilter(request, response);
+		try {
+			filterChain.doFilter(request, response);
+		} catch (Exception e) {
+			logger.error( "Error in downstream chain", e);
+			throw e;
+		}
 		
 		logger.debug("Return response message: {}", response);
 	}

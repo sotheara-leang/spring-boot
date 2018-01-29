@@ -39,4 +39,17 @@ public class LocalMvcTest extends AbstractServiceTest {
 		System.out.println( request );
 		System.out.println( response );
 	}
+	
+	@Test
+	public void testTestUnknownPath() throws Throwable {
+		MessageHeaders headers = new MessageHeaders();
+		headers.put( MessageHeaders.REQ_PATH, "/unknown" );
+		
+		Message request = new Message(headers, new MyDto());
+		
+		Message response = frontHandler.execute( request );
+		
+		System.out.println( request );
+		System.out.println( response );
+	}
 }

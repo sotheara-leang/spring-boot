@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 
 import com.example.springboot.common.mvc.annotation.Handler;
 import com.example.springboot.common.mvc.annotation.RequestMapping;
+import com.example.springboot.common.mvc.exception.HandlerNotFoundException;
 import com.example.springboot.common.mvc.model.MappingContext;
 import com.example.springboot.common.mvc.model.Message;
 import com.example.springboot.common.mvc.model.MessageHeaders;
@@ -106,7 +107,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 
 	@Override
-	public void dispatch(Message request, Message response) throws Throwable {
+	public void dispatch(Message request, Message response) throws HandlerNotFoundException, Throwable {
 		MessageHeaders headers = request.getHeaders();
 		String requestUrl = headers.getRequestUrl();
 		if (StringUtils.isBlank( requestUrl )) {
@@ -123,7 +124,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			Method method = methodInvocation.getMethod();
 			
 			Object requestBody = request.getBody();
-			if (requestBody != null && accept.isAssignableFrom( requestBody.getClass() )) {
+			if (requestBody == null || accept.isAssignableFrom( requestBody.getClass() )) {
 				logger.info("Forward {} to {}.{}", request, handler.getClass().getName(), method.getName());
 
 				Object returnValue = null;
@@ -144,6 +145,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			} else {
 				logger.info("Reject {} to {}.{}", request, handler.getClass().getName(), method.getName());
 			}
+		} else {
+			throw new HandlerNotFoundException("Unknown path: " + requestUrl);
 		}
 	}
 
