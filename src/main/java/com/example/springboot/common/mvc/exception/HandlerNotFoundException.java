@@ -5,7 +5,7 @@ public class HandlerNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = 632771414655162434L;
 
 	public HandlerNotFoundException() {
-        super();
+        super("");
     }
 	
 	public HandlerNotFoundException(String message) {

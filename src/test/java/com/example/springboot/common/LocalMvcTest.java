@@ -52,4 +52,18 @@ public class LocalMvcTest extends AbstractServiceTest {
 		System.out.println( request );
 		System.out.println( response );
 	}
+	
+	@Test
+	public void testTestAnnotation() throws Throwable {
+		MessageHeaders headers = new MessageHeaders();
+		headers.put( MessageHeaders.REQ_PATH, "/handle3" );
+		headers.put( "myHeader", "Hello" );
+		
+		Message request = new Message(headers, new MyDto());
+		
+		Message response = frontHandler.execute( request );
+		
+		System.out.println( request );
+		System.out.println( response );
+	}
 }
