@@ -5,7 +5,6 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
@@ -65,65 +64,65 @@ public class APIConnector {
 
 	// GET
 	
-	public <RES> RES get(String url, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES get(String url, Object request, Class<RES> responseClass) throws RestClientException {
 		return request(url, HttpMethod.GET, request, responseClass);
 	}
 	
-	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		return request(url, HttpMethod.GET, request, responseType);
 	}
 	
 	// POST
 	
-	public <RES> RES post(String url, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES post(String url, Object request, Class<RES> responseClass) throws RestClientException {
 		return request(url, HttpMethod.POST, responseClass);
 	}
 	
-	public <RES> RES post(String url, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES post(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		return request(url, HttpMethod.POST, request, responseType);
 	}
 	
 	// Request
 	
-	public <RES> RES request(String url, HttpMethod method, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, Class<RES> responseClass) throws RestClientException {
 		return request(url, method, null, responseClass);
 	}
 	
-	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException {
 		return request(url, method, request, ParameterizedTypeReference.forType(responseClass));
 	}
 	
-	public <RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException, URISyntaxException {
+	public <RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		return request(url, method, null, responseType);
 	}
 	
-	public <RES> RES request(String url, HttpMethod method, Object request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES request(String url, HttpMethod method, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		 return request(url, method, null, request, responseType);
 	}
 	
-	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws URISyntaxException, RestClientException {
+	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws RestClientException {
 		return requestMultipart(url, requestMap, ParameterizedTypeReference.forType(responseClass));
 	}
 	
-	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		
 		return request(url, HttpMethod.POST, headers, requestMap, responseType);
 	}
 	
-	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		Assert.notNull(url, "url must not be null");
 		Assert.notNull(method, "method must not be null");
 		Assert.notNull(responseType, "responseType must not be null");
 		
-		RequestEntity<REQ> requestEntity = new RequestEntity<REQ>(request, headers, method, new URI(url));  
+		RequestEntity<REQ> requestEntity = new RequestEntity<REQ>(request, headers, method, URI.create(url));  
 		ResponseEntity<RES> responeEntity = request(requestEntity, responseType);
 		return responeEntity.getBody();
 	}
 	
 	@SuppressWarnings( "unchecked" )
-	public <REQ, RES> ResponseEntity<RES> request(RequestEntity<REQ> requestEntity, ParameterizedTypeReference<RES> responseType) throws URISyntaxException, RestClientException {
+	public <REQ, RES> ResponseEntity<RES> request(RequestEntity<REQ> requestEntity, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		Assert.notNull(requestEntity, "requestEntity must not be null");
 		Assert.notNull(responseType, "responseType must not be null");
 		
@@ -136,7 +135,7 @@ public class APIConnector {
 		
 		URI url = requestEntity.getUrl();
 		if (!url.isAbsolute()) {
-			url = new URI(baseUrl + url.getPath());
+			url = URI.create(baseUrl + url.getPath());
 		}
 		
 		REQ request = requestEntity.getBody();
