@@ -1,6 +1,7 @@
 package com.example.springboot.common.connector;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -27,12 +28,16 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.springboot.dto.UserDto;
+import com.example.springboot.web.vo.Message;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+import io.leangen.geantyref.TypeFactory;
 
 public class APIConnector {
 	
@@ -65,7 +70,12 @@ public class APIConnector {
 	// GET
 	
 	public <RES> RES get(String url, Object request, Class<RES> responseClass) throws RestClientException {
-		return request(url, HttpMethod.GET, request, responseClass);
+		return get(url, request, ParameterizedTypeReference.forType(responseClass));
+	}
+	
+	public <RES> RES get(String url, Object request, Class<?> clazz, Type... arguments) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return get(url, request, ParameterizedTypeReference.forType( TypeFactory.parameterizedClass( Message.class, UserDto.class ) ));
 	}
 	
 	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -75,7 +85,12 @@ public class APIConnector {
 	// POST
 	
 	public <RES> RES post(String url, Object request, Class<RES> responseClass) throws RestClientException {
-		return request(url, HttpMethod.POST, responseClass);
+		return post(url, request, ParameterizedTypeReference.forType(responseClass));
+	}
+
+	public <RES> RES post(String url, Object request, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return post(url, request, getParamterziedType(clazz, classArgs));
 	}
 	
 	public <RES> RES post(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -88,20 +103,37 @@ public class APIConnector {
 		return request(url, method, null, responseClass);
 	}
 	
-	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException {
-		return request(url, method, request, ParameterizedTypeReference.forType(responseClass));
+	public <RES> RES request(String url, HttpMethod method, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return request(url, method, getParamterziedType(clazz, classArgs));
 	}
 	
 	public <RES> RES request(String url, HttpMethod method, ParameterizedTypeReference<RES> responseType) throws RestClientException {
 		return request(url, method, null, responseType);
 	}
 	
-	public <RES> RES request(String url, HttpMethod method, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
-		 return request(url, method, null, request, responseType);
+	public <RES> RES request(String url, HttpMethod method, Object request, Class<RES> responseClass) throws RestClientException {
+		return request(url, method, request, ParameterizedTypeReference.forType(responseClass));
 	}
+	
+	public <RES> RES request(String url, HttpMethod method, Object request, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return request(url, method, request, getParamterziedType(clazz, classArgs));
+	}
+	
+	public <RES> RES request(String url, HttpMethod method, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
+		return request(url, method, null, request, responseType);
+	}
+	
+	/* Multipart */
 	
 	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<RES> responseClass) throws RestClientException {
 		return requestMultipart(url, requestMap, ParameterizedTypeReference.forType(responseClass));
+	}
+	
+	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return requestMultipart(url, requestMap, getParamterziedType(clazz, classArgs));
 	}
 	
 	public <RES> RES requestMultipart(String url, MultiValueMap<String, Object> requestMap, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -109,6 +141,11 @@ public class APIConnector {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		
 		return request(url, HttpMethod.POST, headers, requestMap, responseType);
+	}
+
+	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return request( url, method, headers, request, getParamterziedType(clazz, classArgs));
 	}
 	
 	public <REQ, RES> RES request(String url, HttpMethod method, HttpHeaders headers, REQ request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -120,6 +157,13 @@ public class APIConnector {
 		ResponseEntity<RES> responeEntity = request(requestEntity, responseType);
 		return responeEntity.getBody();
 	}
+
+	public <REQ, RES> ResponseEntity<RES> request(RequestEntity<REQ> requestEntity, Class<?> clazz, Type... classArgs) throws RestClientException {
+		Assert.notNull(clazz, "clazz must not be null");
+		return request(requestEntity, getParamterziedType(clazz, classArgs));
+	}
+	
+	/* Main API */
 	
 	@SuppressWarnings( "unchecked" )
 	public <REQ, RES> ResponseEntity<RES> request(RequestEntity<REQ> requestEntity, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -218,6 +262,12 @@ public class APIConnector {
 		}
 		
 		return responseEntity;
+	}
+	
+	/* Useful functions */
+	
+	protected <T> ParameterizedTypeReference<T> getParamterziedType(Class<?> clazz, Type... classArgs) {
+		return ParameterizedTypeReference.forType( TypeFactory.parameterizedClass(clazz, classArgs));
 	}
 	
 	protected String serialize(Object object) {

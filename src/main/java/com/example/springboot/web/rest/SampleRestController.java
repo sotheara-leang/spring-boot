@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.springboot.dto.UserDto;
+import com.example.springboot.web.vo.Message;
 
 @RestController
 public class SampleRestController {
@@ -19,6 +20,20 @@ public class SampleRestController {
 				.lastName("sok_"+ id)
 				.firstName("dara_" + id)
 				.build();
+	}
+	
+	@GetMapping("/api/generic")
+	public Message<UserDto> getGeneric() {
+		UserDto user = UserDto.builder()
+		.username("user")
+		.lastName("sok")
+		.firstName("dara")
+		.build();
+		
+		Message<UserDto> message = new Message<>();
+		message.setHeader( "hello" );
+		message.setBody( user );
+		return message;
 	}
 	
 	@PostMapping("/api/upload")
