@@ -28,8 +28,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.springboot.dto.UserDto;
-import com.example.springboot.web.vo.Message;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -73,9 +71,9 @@ public class APIConnector {
 		return get(url, request, ParameterizedTypeReference.forType(responseClass));
 	}
 	
-	public <RES> RES get(String url, Object request, Class<?> clazz, Type... arguments) throws RestClientException {
+	public <RES> RES get(String url, Object request, Class<?> clazz, Type... classArgs) throws RestClientException {
 		Assert.notNull(clazz, "clazz must not be null");
-		return get(url, request, ParameterizedTypeReference.forType( TypeFactory.parameterizedClass( Message.class, UserDto.class ) ));
+		return get(url, request, ParameterizedTypeReference.forType( TypeFactory.parameterizedClass( clazz, classArgs ) ));
 	}
 	
 	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
