@@ -182,7 +182,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					throw e;
 				}
 				
-				if ( Message.class.isAssignableFrom( returnValue.getClass() ) ) {
+				if ( returnValue != null && Message.class.isAssignableFrom( returnValue.getClass() ) ) {
 					Message newResponse = (Message) returnValue;
 					response.setHeaders( newResponse.getHeaders() );
 					response.setBody( newResponse.getBody() );
