@@ -1,13 +1,15 @@
 package com.example.springboot.common.mvc.aop.aspect;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.springboot.common.mvc.filter.FilterChain;
+import com.example.springboot.common.mvc.filter.Filter;
+import com.example.springboot.common.mvc.filter.SingleThreadFilterChain;
 import com.example.springboot.common.mvc.model.Message;
 import com.example.springboot.common.mvc.model.MethodInvocation;
 
@@ -15,10 +17,10 @@ public class MethodAroundAspect {
 	
 	private static Logger logger = LoggerFactory.getLogger(MethodAroundAspect.class);
 	
-	private FilterChain filterChain;
+	protected List<Filter> filterList;
 	
-	public MethodAroundAspect(FilterChain filterChain) {
-		this.filterChain = filterChain;
+	public MethodAroundAspect(List<Filter> filterList) {
+		this.filterList = filterList;
 	}
 
 	public Object aroundMethod(ProceedingJoinPoint jp) throws Throwable {
@@ -29,10 +31,11 @@ public class MethodAroundAspect {
 		Message request = new Message();
 		request.setBody(methodInvocation);
 		
-		Message response = new Message();
+		Message response;
 		
 		try {
-			filterChain.doFilter(request, response);
+			SingleThreadFilterChain filterChain = new SingleThreadFilterChain( filterList );
+			response = filterChain.doFilter(request);
 		} catch (Exception e) {
 			logger.error( "Error apply method around aspect: {}", methodInvocation );
 			throw e;

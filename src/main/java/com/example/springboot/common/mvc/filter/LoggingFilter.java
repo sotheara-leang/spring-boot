@@ -10,16 +10,19 @@ public class LoggingFilter implements Filter {
 	private static Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 	
 	@Override
-	public void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable {
+	public Message doFilter(Message request, FilterChain filterChain) throws Throwable {
 		logger.debug("Accept request message: {}", request);
 		
+		Message response = null;
 		try {
-			filterChain.doFilter(request, response);
+			response = filterChain.doFilter(request);
 		} catch (Exception e) {
-			logger.error( "Error in downstream chain", e);
+			logger.error( "Error in downstream filters", e);
 			throw e;
 		}
 		
 		logger.debug("Return response message: {}", response);
+		
+		return response;
 	}
 }

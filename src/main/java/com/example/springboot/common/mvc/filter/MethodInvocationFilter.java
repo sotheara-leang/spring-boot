@@ -6,14 +6,18 @@ import com.example.springboot.common.mvc.model.MethodInvocation;
 public class MethodInvocationFilter implements Filter {
 
 	@Override
-	public void doFilter( Message request, Message response, FilterChain filterChain ) throws Throwable {
+	public Message doFilter( Message request, FilterChain filterChain ) throws Throwable {
+		Message response = new Message();
+		
 		if (request == null || (request.getBody() != null 
 				&& MethodInvocation.class.isAssignableFrom( request.getBody().getClass() ))) {
 			
 			MethodInvocation methodInvocation = (MethodInvocation) request.getBody();
 			response.setBody( methodInvocation.proceed() );
 		} else {
-			filterChain.doFilter( request, response );
+			response = filterChain.doFilter( request );
 		}
+		
+		return response;
 	}
 }

@@ -6,7 +6,7 @@ import com.example.springboot.common.mvc.model.Message;
 
 public interface FilterChain {
 
-	void doFilter(Message request, Message response) throws Throwable;
+	Message doFilter(Message request) throws Throwable;
 	
 	List<Filter> getFilterList();
 }

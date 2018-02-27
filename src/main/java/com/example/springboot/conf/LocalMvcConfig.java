@@ -10,9 +10,7 @@ import com.example.springboot.common.mvc.BasicFrontHandler;
 import com.example.springboot.common.mvc.FrontHandler;
 import com.example.springboot.common.mvc.dispatcher.BasicDispatcher;
 import com.example.springboot.common.mvc.dispatcher.Dispatcher;
-import com.example.springboot.common.mvc.filter.BasicFilterChain;
 import com.example.springboot.common.mvc.filter.Filter;
-import com.example.springboot.common.mvc.filter.FilterChain;
 import com.example.springboot.common.mvc.filter.LoggingFilter;
 import com.example.springboot.common.mvc.resolver.BodyParameterResolver;
 import com.example.springboot.common.mvc.resolver.HandlerMethodParameterResolver;
@@ -34,17 +32,12 @@ public class LocalMvcConfig {
 	}
 	
 	@Bean
-	public FilterChain filterChain(List<Filter> filterList) {
-		return new BasicFilterChain( filterList );
-	}
-	
-	@Bean
 	public LoggingFilter loggingFilter() {
 		return new LoggingFilter();
 	}
 	
 	@Bean
-	public FrontHandler frontHandler(FilterChain filterChain, Dispatcher dispatcher) {
-		return new BasicFrontHandler( filterChain, dispatcher );
+	public FrontHandler frontHandler(List<Filter> filterList, Dispatcher dispatcher) {
+		return new BasicFrontHandler( filterList, dispatcher );
 	}
 }

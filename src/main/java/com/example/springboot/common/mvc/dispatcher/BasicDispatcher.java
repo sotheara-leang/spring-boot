@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 import com.example.springboot.common.mvc.annotation.Handler;
 import com.example.springboot.common.mvc.annotation.RequestMapping;
 import com.example.springboot.common.mvc.exception.HandlerNotFoundException;
+import com.example.springboot.common.mvc.exception.MessageInvalidException;
 import com.example.springboot.common.mvc.model.MappingContext;
 import com.example.springboot.common.mvc.model.Message;
 import com.example.springboot.common.mvc.model.MessageHeaders;
@@ -111,12 +112,14 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 
 	@Override
-	public void dispatch( Message request, Message response ) throws HandlerNotFoundException, Throwable {
+	public Message dispatch( Message request ) throws Throwable {
+		Message response = new Message();
+		
 		MessageHeaders headers = request.getHeaders();
 		String requestUrl = headers.getRequestUrl();
 		if ( StringUtils.isBlank( requestUrl ) ) {
-			logger.warn( "Request url is undefine - Skip message : {}", request );
-			return;
+			logger.warn( "Request url is undefined - Skip message : {}", request );
+			throw new MessageInvalidException("Request url is undefined");
 		}
 
 		MappingContext mappingContext = mappingContextMap.get( requestUrl );
@@ -178,7 +181,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					logger.error( "Error handle request message: {}", request );
 					throw e;
 				}
-
+				
 				if ( Message.class.isAssignableFrom( returnValue.getClass() ) ) {
 					Message newResponse = (Message) returnValue;
 					response.setHeaders( newResponse.getHeaders() );
@@ -187,11 +190,15 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					response.setBody( returnValue );
 				}
 			} else {
-				logger.info( "Reject {} to {}.{}", request, handler.getClass().getName(), method.getName() );
+				logger.error( "Reject {} to {}.{}", request, handler.getClass().getName(), method.getName() );
+				throw new MessageInvalidException("Request body not support");
 			}
 		} else {
-			throw new HandlerNotFoundException( "Unknown path: " + requestUrl );
+			logger.error( "Unknown request url: {}", request);
+			throw new HandlerNotFoundException( "Unknown request url: " + requestUrl );
 		}
+		
+		return response;
 	}
 
 	public String getBasePackage() {

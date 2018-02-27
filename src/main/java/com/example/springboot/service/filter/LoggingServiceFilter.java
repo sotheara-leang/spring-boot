@@ -10,11 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 public class LoggingServiceFilter implements Filter {
 
 	@Override
-	public void doFilter(Message request, Message response, FilterChain filterChain) throws Throwable {
+	public Message doFilter(Message request, FilterChain filterChain) throws Throwable {
 		log.debug("Before invoke LogServiceFilter");
 		
-		filterChain.doFilter(request, response);
+		Message response = filterChain.doFilter(request);
 		
 		log.debug("After invoke LogServiceFilter");
+		
+		return response;
 	}
 }
