@@ -1,14 +1,14 @@
-package com.example.springboot.common.mvc.resolver;
+package com.example.springboot.common.dispatcher.resolver;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.example.springboot.common.mvc.annotation.Header;
-import com.example.springboot.common.mvc.exception.ParameterRequiredException;
-import com.example.springboot.common.mvc.exception.ParameterTypeInvalidException;
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MessageHeaders;
-import com.example.springboot.common.mvc.model.MethodParameter;
+import com.example.springboot.common.dispatcher.annotation.Header;
+import com.example.springboot.common.dispatcher.exception.ParameterRequiredException;
+import com.example.springboot.common.dispatcher.exception.ParameterTypeInvalidException;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MessageHeaders;
+import com.example.springboot.common.dispatcher.model.MethodParameter;
 
 public class HeaderParameterResolver implements HandlerMethodParameterResolver {
 

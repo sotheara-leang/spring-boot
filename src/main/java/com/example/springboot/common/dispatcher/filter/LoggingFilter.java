@@ -1,9 +1,9 @@
-package com.example.springboot.common.mvc.filter;
+package com.example.springboot.common.dispatcher.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.springboot.common.mvc.model.Message;
+import com.example.springboot.common.dispatcher.model.Message;
 
 public class LoggingFilter implements Filter {
 

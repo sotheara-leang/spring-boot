@@ -1,4 +1,4 @@
-package com.example.springboot.common.mvc.exception;
+package com.example.springboot.common.dispatcher.exception;
 
 public class HandlerNotFoundException extends RuntimeException {
 

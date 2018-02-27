@@ -1,4 +1,4 @@
-package com.example.springboot.common.mvc.aop.aspect;
+package com.example.springboot.common.dispatcher.aop.aspect;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -8,10 +8,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.springboot.common.mvc.filter.Filter;
-import com.example.springboot.common.mvc.filter.SingleThreadFilterChain;
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MethodInvocation;
+import com.example.springboot.common.dispatcher.filter.Filter;
+import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MethodInvocation;
 
 public class MethodAroundAspect {
 	

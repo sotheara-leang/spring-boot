@@ -1,6 +1,6 @@
-package com.example.springboot.common.mvc;
+package com.example.springboot.common.dispatcher;
 
-import com.example.springboot.common.mvc.model.Message;
+import com.example.springboot.common.dispatcher.model.Message;
 
 public interface FrontHandler {
 

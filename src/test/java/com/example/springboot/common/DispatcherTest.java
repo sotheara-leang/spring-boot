@@ -4,12 +4,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.springboot.AbstractServiceTest;
-import com.example.springboot.common.mvc.FrontHandler;
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MessageHeaders;
+import com.example.springboot.common.dispatcher.FrontHandler;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MessageHeaders;
 import com.example.springboot.dto.MyDto;
 
-public class LocalMvcTest extends AbstractServiceTest {
+public class DispatcherTest extends AbstractServiceTest {
 
 	@Autowired
 	private FrontHandler frontHandler;

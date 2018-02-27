@@ -1,10 +1,10 @@
-package com.example.springboot.mvc.handler;
+package com.example.springboot.dispatch.handler;
 
-import com.example.springboot.common.mvc.annotation.Body;
-import com.example.springboot.common.mvc.annotation.Handler;
-import com.example.springboot.common.mvc.annotation.Header;
-import com.example.springboot.common.mvc.annotation.RequestMapping;
-import com.example.springboot.common.mvc.model.Message;
+import com.example.springboot.common.dispatcher.annotation.Body;
+import com.example.springboot.common.dispatcher.annotation.Handler;
+import com.example.springboot.common.dispatcher.annotation.Header;
+import com.example.springboot.common.dispatcher.annotation.RequestMapping;
+import com.example.springboot.common.dispatcher.model.Message;
 import com.example.springboot.dto.MyDto;
 
 @Handler

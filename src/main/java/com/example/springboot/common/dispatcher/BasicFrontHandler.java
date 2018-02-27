@@ -1,12 +1,11 @@
-package com.example.springboot.common.mvc;
+package com.example.springboot.common.dispatcher;
 
 import java.util.List;
 
-import com.example.springboot.common.mvc.dispatcher.Dispatcher;
-import com.example.springboot.common.mvc.filter.Filter;
-import com.example.springboot.common.mvc.filter.FilterChain;
-import com.example.springboot.common.mvc.filter.SingleThreadFilterChain;
-import com.example.springboot.common.mvc.model.Message;
+import com.example.springboot.common.dispatcher.filter.Filter;
+import com.example.springboot.common.dispatcher.filter.FilterChain;
+import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
+import com.example.springboot.common.dispatcher.model.Message;
 
 public class BasicFrontHandler implements FrontHandler {
 

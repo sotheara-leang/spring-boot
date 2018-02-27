@@ -1,4 +1,4 @@
-package com.example.springboot.common.mvc.dispatcher;
+package com.example.springboot.common.dispatcher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -23,16 +23,16 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 
-import com.example.springboot.common.mvc.annotation.Handler;
-import com.example.springboot.common.mvc.annotation.RequestMapping;
-import com.example.springboot.common.mvc.exception.HandlerNotFoundException;
-import com.example.springboot.common.mvc.exception.MessageInvalidException;
-import com.example.springboot.common.mvc.model.MappingContext;
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MessageHeaders;
-import com.example.springboot.common.mvc.model.MethodInvocation;
-import com.example.springboot.common.mvc.model.MethodParameter;
-import com.example.springboot.common.mvc.resolver.HandlerMethodParameterResolver;
+import com.example.springboot.common.dispatcher.annotation.Handler;
+import com.example.springboot.common.dispatcher.annotation.RequestMapping;
+import com.example.springboot.common.dispatcher.exception.HandlerNotFoundException;
+import com.example.springboot.common.dispatcher.exception.MessageInvalidException;
+import com.example.springboot.common.dispatcher.model.MappingContext;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MessageHeaders;
+import com.example.springboot.common.dispatcher.model.MethodInvocation;
+import com.example.springboot.common.dispatcher.model.MethodParameter;
+import com.example.springboot.common.dispatcher.resolver.HandlerMethodParameterResolver;
 
 public class BasicDispatcher implements ApplicationContextAware, InitializingBean, Dispatcher {
 

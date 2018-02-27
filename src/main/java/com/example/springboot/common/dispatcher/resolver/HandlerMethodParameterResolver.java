@@ -1,7 +1,7 @@
-package com.example.springboot.common.mvc.resolver;
+package com.example.springboot.common.dispatcher.resolver;
 
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MethodParameter;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MethodParameter;
 
 public interface HandlerMethodParameterResolver {
 

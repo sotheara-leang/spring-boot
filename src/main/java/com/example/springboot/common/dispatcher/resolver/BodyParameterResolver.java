@@ -1,9 +1,9 @@
-package com.example.springboot.common.mvc.resolver;
+package com.example.springboot.common.dispatcher.resolver;
 
-import com.example.springboot.common.mvc.annotation.Body;
-import com.example.springboot.common.mvc.exception.ParameterRequiredException;
-import com.example.springboot.common.mvc.model.Message;
-import com.example.springboot.common.mvc.model.MethodParameter;
+import com.example.springboot.common.dispatcher.annotation.Body;
+import com.example.springboot.common.dispatcher.exception.ParameterRequiredException;
+import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.MethodParameter;
 
 public class BodyParameterResolver implements HandlerMethodParameterResolver {
 

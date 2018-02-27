@@ -1,4 +1,4 @@
-package com.example.springboot.common.mvc.filter;
+package com.example.springboot.common.dispatcher.filter;
 
 import java.util.List;
 

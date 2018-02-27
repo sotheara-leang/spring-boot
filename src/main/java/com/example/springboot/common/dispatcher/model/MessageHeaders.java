@@ -1,4 +1,4 @@
-package com.example.springboot.common.mvc.model;
+package com.example.springboot.common.dispatcher.model;
 
 import java.util.Collection;
 import java.util.Collections;

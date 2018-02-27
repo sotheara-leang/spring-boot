@@ -6,18 +6,18 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.example.springboot.common.mvc.BasicFrontHandler;
-import com.example.springboot.common.mvc.FrontHandler;
-import com.example.springboot.common.mvc.dispatcher.BasicDispatcher;
-import com.example.springboot.common.mvc.dispatcher.Dispatcher;
-import com.example.springboot.common.mvc.filter.Filter;
-import com.example.springboot.common.mvc.filter.LoggingFilter;
-import com.example.springboot.common.mvc.resolver.BodyParameterResolver;
-import com.example.springboot.common.mvc.resolver.HandlerMethodParameterResolver;
-import com.example.springboot.common.mvc.resolver.HeaderParameterResolver;
+import com.example.springboot.common.dispatcher.BasicDispatcher;
+import com.example.springboot.common.dispatcher.BasicFrontHandler;
+import com.example.springboot.common.dispatcher.Dispatcher;
+import com.example.springboot.common.dispatcher.FrontHandler;
+import com.example.springboot.common.dispatcher.filter.Filter;
+import com.example.springboot.common.dispatcher.filter.LoggingFilter;
+import com.example.springboot.common.dispatcher.resolver.BodyParameterResolver;
+import com.example.springboot.common.dispatcher.resolver.HandlerMethodParameterResolver;
+import com.example.springboot.common.dispatcher.resolver.HeaderParameterResolver;
 
 @Configuration
-public class LocalMvcConfig {
+public class DispatcherConfig {
 
 	@Bean
 	public Dispatcher dispatcher() {
