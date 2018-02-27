@@ -1,4 +1,4 @@
-package com.example.springboot.dispatch.handler;
+package com.example.springboot.dispatcher.handler;
 
 import com.example.springboot.common.dispatcher.annotation.Body;
 import com.example.springboot.common.dispatcher.annotation.Handler;
