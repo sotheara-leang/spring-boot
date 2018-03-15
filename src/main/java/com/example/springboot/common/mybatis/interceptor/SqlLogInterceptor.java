@@ -56,10 +56,7 @@ public class SqlLogInterceptor implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-		final String prettyPrint = properties.getProperty(PRETTY_PRINT_PROPERTY_NAME);
-		if ("true".equals(prettyPrint) || "false".equals(prettyPrint)) {
-			this.prettyPrint = Boolean.valueOf(prettyPrint);
-		}
+		this.prettyPrint = Boolean.valueOf(properties.getProperty(PRETTY_PRINT_PROPERTY_NAME));
 	}
 	
 	protected String generateSQL(Invocation invocation) throws Exception {
