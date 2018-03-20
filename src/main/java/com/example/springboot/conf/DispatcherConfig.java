@@ -27,7 +27,6 @@ public class DispatcherConfig {
 		
 		BasicDispatcher dispactcher = new BasicDispatcher();
 		dispactcher.setParameterResolvers( parameterResolvers );
-		dispactcher.setBasePackage( "com.example.springboot.dispatcher.handler" );
 		return dispactcher;
 	}
 	

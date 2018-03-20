@@ -1,13 +1,14 @@
 package com.example.springboot.common.dispatcher.filter;
 
-import com.example.springboot.common.dispatcher.model.Message;
 import com.example.springboot.common.dispatcher.model.MethodInvocation;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public class MethodInvocationFilter implements Filter {
 
 	@Override
-	public Message doFilter( Message request, FilterChain filterChain ) throws Throwable {
-		Message response = new Message();
+	public Response doFilter( Request request, FilterChain filterChain ) throws Throwable {
+		Response response = new Response();
 		
 		if (request == null || (request.getBody() != null 
 				&& MethodInvocation.class.isAssignableFrom( request.getBody().getClass() ))) {

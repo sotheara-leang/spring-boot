@@ -3,35 +3,34 @@ package com.example.springboot.common.dispatcher;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.util.Assert;
 
-import com.example.springboot.common.dispatcher.annotation.Handler;
+import com.example.springboot.common.dispatcher.annotation.Controller;
 import com.example.springboot.common.dispatcher.annotation.RequestMapping;
 import com.example.springboot.common.dispatcher.exception.HandlerNotFoundException;
 import com.example.springboot.common.dispatcher.exception.MessageInvalidException;
-import com.example.springboot.common.dispatcher.model.MappingContext;
-import com.example.springboot.common.dispatcher.model.Message;
-import com.example.springboot.common.dispatcher.model.MessageHeaders;
-import com.example.springboot.common.dispatcher.model.MethodInvocation;
+import com.example.springboot.common.dispatcher.model.HandlingMappingInfo;
 import com.example.springboot.common.dispatcher.model.MethodParameter;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 import com.example.springboot.common.dispatcher.resolver.HandlerMethodParameterResolver;
 
 public class BasicDispatcher implements ApplicationContextAware, InitializingBean, Dispatcher {
@@ -40,9 +39,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 
 	protected ApplicationContext applicationContext;
 
-	private String basePackage;
-
-	protected Map<String, MappingContext> mappingContextMap = new HashMap<String, MappingContext>();
+	protected Map<String, HandlingMappingInfo> handlingMappingInfoMap = new HashMap<String, HandlingMappingInfo>();
 
 	protected List<HandlerMethodParameterResolver> parameterResolvers;
 
@@ -57,19 +54,16 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 
 	protected void init() throws BeansException, ClassNotFoundException {
-		Assert.hasText( basePackage, "base package is undefined" );
+		Map<String, Object> handlerMap = applicationContext.getBeansWithAnnotation( Controller.class );
+		
+		Set<Entry<String, Object>> entrySet = handlerMap.entrySet();
+		for (Entry<String, Object> entry : entrySet) {
+			Object handler = entry.getValue();
+			
+			Class<? extends Object> handlerClass = handler.getClass();
+			String handlerClassName = handlerClass.getName();
 
-		ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider( true );
-		scanner.addIncludeFilter( new AnnotationTypeFilter( Handler.class ) );
-
-		Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents( basePackage );
-		for ( BeanDefinition beanDefinition : beanDefinitions ) {
-			Object bean = applicationContext.getBean( Class.forName( beanDefinition.getBeanClassName() ) );
-
-			Class<? extends Object> beanClass = bean.getClass();
-			String className = beanClass.getName();
-
-			Method[] methods = beanClass.getDeclaredMethods();
+			List<Method> methods = MethodUtils.getMethodsListWithAnnotation( handlerClass, RequestMapping.class );
 			if ( methods != null ) {
 				for ( Method method : methods ) {
 					String methodName = method.getName();
@@ -77,34 +71,27 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 
 					if ( Modifier.isPublic( modifiers ) && !Modifier.isAbstract( modifiers ) ) {
 						RequestMapping requestMapping = method.getAnnotation( RequestMapping.class );
-						if ( requestMapping == null ) {
-							logger.error( "@RequestMapping not found: {}.{}", className, methodName );
-							continue;
-						}
 
-						String path = requestMapping.path();
+						String path = requestMapping.value();
 						if ( StringUtils.isBlank( path ) ) {
-							logger.error( "@RequestMapping invalid. Path is blank: {}.{}", className, methodName );
+							logger.error( "@RequestMapping invalid. Path is blank: {}.{}", handlerClassName, methodName );
 							continue;
 						}
 
-						if ( mappingContextMap.get( path ) != null ) {
-							logger.error( "@RequestMapping invalid. Path is dupplicated: {}.{}", className,
+						if ( handlingMappingInfoMap.get( path ) != null ) {
+							logger.error( "@RequestMapping invalid. Path is duplicated: {}.{}", handlerClassName,
 									methodName );
 							continue;
 						}
 
-						logger.info( "Register handler method: {}.{}", className, methodName );
+						logger.info( "Register handler method: {}.{}", handlerClassName, methodName );
 
-						Class<?> accept = requestMapping.accept();
-						MethodInvocation methodInvocation = new MethodInvocation( bean, method );
+						HandlingMappingInfo handlingMappingInfo = new HandlingMappingInfo();
+						handlingMappingInfo.setPath( path );
+						handlingMappingInfo.setMethod( method );
+						handlingMappingInfo.setHandler( handler );
 
-						MappingContext mappingContext = new MappingContext();
-						mappingContext.setPath( path );
-						mappingContext.setAccept( accept );
-						mappingContext.setMethodInvocation( methodInvocation );
-
-						mappingContextMap.put( path, mappingContext );
+						handlingMappingInfoMap.put( path, handlingMappingInfo );
 					}
 				}
 			}
@@ -112,101 +99,102 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 
 	@Override
-	public Message dispatch( Message request ) throws Throwable {
-		Message response = new Message();
+	public Response process( Request request ) throws Throwable {
+		Response response = new Response();
 		
-		MessageHeaders headers = request.getHeaders();
-		String requestUrl = headers.getRequestUrl();
-		if ( StringUtils.isBlank( requestUrl ) ) {
-			logger.warn( "Request url is undefined - Skip message : {}", request );
+		// validation
+		String requestPath = request.getPath();
+		if ( StringUtils.isBlank( requestPath ) ) {
+			logger.warn( "Request path is undefined - Skip message : {}", request );
 			throw new MessageInvalidException("Request url is undefined");
 		}
 
-		MappingContext mappingContext = mappingContextMap.get( requestUrl );
-		if ( mappingContext != null ) {
-			Class<?> accept = mappingContext.getAccept();
+		HandlingMappingInfo handlingMappingInfo = handlingMappingInfoMap.get( requestPath );
+		if ( handlingMappingInfo != null ) {
+			Object handler = handlingMappingInfo.getHandler();
+			Method method = handlingMappingInfo.getMethod();
 
-			MethodInvocation methodInvocation = mappingContext.getMethodInvocation();
-			Object handler = methodInvocation.getTarget();
-			Method method = methodInvocation.getMethod();
-
-			Object requestBody = request.getBody();
-			if ( requestBody == null || accept.isAssignableFrom( requestBody.getClass() ) ) {
-				logger.info( "Forward {} to {}.{}", request, handler.getClass().getName(), method.getName() );
-
-				List<Object> filterParameters = new ArrayList<>();
-
-				Parameter[] parameters = method.getParameters();
-				if ( parameters != null ) {
-					ParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
-					String[] parameterNames = discoverer.getParameterNames( method );
+			// prepare handler parameters
+			
+			List<Object> parameters = new ArrayList<Object>();
+			
+			Parameter[] methodParamters = method.getParameters();
+			if ( methodParamters != null ) {
+				ParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+				String[] parameterNames = discoverer.getParameterNames( method );
+				
+				for ( int i = 0; i < methodParamters.length; i++ ) {
+					Parameter parameter = methodParamters[i];
+					String paramName = parameterNames[i];
+					Class<?> paramType = parameter.getType();
 					
-					for ( int i = 0; i < parameters.length; i++ ) {
-						Parameter parameter = parameters[i];
-						String paramName = parameterNames[i];
-						Class<?> paramType = parameter.getType();
+					if ( Request.class.isAssignableFrom( paramType ) ) {
+						parameters.add( request );
+						continue;
+					}
+					
+					MethodParameter methodParameter = new MethodParameter();
+					methodParameter.setName( paramName );
+					methodParameter.setType( paramType );
+					methodParameter.setIndex( i );
+					methodParameter.setAnnotations( parameter.getAnnotations() );
+					
+					// define parameter generic type
+					Type paramGenericType = parameter.getParameterizedType();
+					if (paramGenericType instanceof ParameterizedType) {
+						ParameterizedType paramParameterizedType = (ParameterizedType) paramGenericType;
+						Type[] actualTypeArguments = paramParameterizedType.getActualTypeArguments();
 						
-						if (Message.class.isAssignableFrom( paramType )) {
-							filterParameters.add( request );
-							continue;
-						}
-						
-						MethodParameter methodParameter = new MethodParameter();
-						methodParameter.setParameterName( paramName );
-						methodParameter.setParameterType( paramType );
-						methodParameter.setParameterIndex( i );
-						methodParameter.setParameterAnnotations( parameter.getAnnotations() );
-						
-						Object filterParameter = null;
-						if ( parameterResolvers != null ) {
-							for ( HandlerMethodParameterResolver resolver : parameterResolvers ) {
-								if ( resolver.supportsParameter( methodParameter ) ) {
-									try {
-										filterParameter = resolver.resolveParemeter( methodParameter, request );
-									} catch ( Exception e ) {
-										logger.error( "Error resolve parameter: {}", parameter, e );
-									}
-									break;
+						methodParameter.setGenericTypes( actualTypeArguments );
+					}
+					
+					// filter parameter
+					Object resolvedParamter = null;
+					if ( parameterResolvers != null ) {
+						for ( HandlerMethodParameterResolver resolver : parameterResolvers ) {
+							if ( resolver.supportsParameter( methodParameter ) ) {
+								try {
+									resolvedParamter = resolver.resolveParemeter( methodParameter, request );
+								} catch ( Exception e ) {
+									logger.error( "Error resolve parameter: {}, {}", methodParameter, request, e );
 								}
+								break;
 							}
 						}
-						filterParameters.add( filterParameter );
 					}
+					parameters.add( resolvedParamter );
 				}
-
-				Object returnValue = null;
-				try {
-					returnValue = methodInvocation.proceed( filterParameters.toArray() );
-				} catch ( Exception e ) {
-					logger.error( "Error handle request message: {}", request );
-					throw e;
-				}
-				
-				if ( returnValue != null && Message.class.isAssignableFrom( returnValue.getClass() ) ) {
-					Message newResponse = (Message) returnValue;
-					response.setHeaders( newResponse.getHeaders() );
-					response.setBody( newResponse.getBody() );
-				} else {
-					response.setBody( returnValue );
-				}
-			} else {
-				logger.error( "Reject {} to {}.{}", request, handler.getClass().getName(), method.getName() );
-				throw new MessageInvalidException("Request body not support");
 			}
+			
+			logger.info( "Invoke {}.{} with paramters: {}", handler.getClass().getName(), method.getName(), parameters );
+			
+			// invoke handler
+			Object returnValue = null;
+			try {
+				returnValue = method.invoke( handler, parameters.toArray() );
+			} catch ( Exception e ) {
+				logger.error( "Error handler invocation: {}", request );
+				throw e;
+			}
+			response = prepareResponse( returnValue );
+			
 		} else {
-			logger.error( "Unknown request url: {}", request);
-			throw new HandlerNotFoundException( "Unknown request url: " + requestUrl );
+			logger.error( "Unknown request path: {}", request);
+			throw new HandlerNotFoundException( "Unknown request path: " + requestPath );
 		}
 		
 		return response;
 	}
-
-	public String getBasePackage() {
-		return basePackage;
-	}
-
-	public void setBasePackage( String basePackage ) {
-		this.basePackage = basePackage;
+	
+	protected Response prepareResponse(Object returnValue) {
+		Response response;
+		if ( returnValue != null && Response.class.isAssignableFrom( returnValue.getClass() ) ) {
+			response = (Response) returnValue;
+		} else {
+			response = new Response();
+			response.setBody( returnValue );
+		}
+		return response;
 	}
 
 	public List<HandlerMethodParameterResolver> getParameterResolvers() {

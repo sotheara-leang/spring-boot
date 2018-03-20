@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.example.springboot.common.dispatcher.filter.Filter;
 import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
-import com.example.springboot.common.dispatcher.model.Message;
 import com.example.springboot.common.dispatcher.model.MethodInvocation;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public class MethodAroundAspect {
 	
@@ -28,10 +29,10 @@ public class MethodAroundAspect {
 		Method method = signature.getMethod();
 		
 		MethodInvocation methodInvocation = new MethodInvocation(jp.getTarget(), method, jp.getArgs());
-		Message request = new Message();
+		Request request = new Request();
 		request.setBody(methodInvocation);
 		
-		Message response;
+		Response response;
 		
 		try {
 			SingleThreadFilterChain filterChain = new SingleThreadFilterChain( filterList );

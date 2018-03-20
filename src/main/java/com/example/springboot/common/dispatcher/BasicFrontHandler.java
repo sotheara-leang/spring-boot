@@ -7,7 +7,8 @@ import java.util.List;
 import com.example.springboot.common.dispatcher.filter.Filter;
 import com.example.springboot.common.dispatcher.filter.FilterChain;
 import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
-import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public class BasicFrontHandler implements FrontHandler {
 
@@ -21,7 +22,7 @@ public class BasicFrontHandler implements FrontHandler {
 	}
 
 	@Override
-	public Message execute( Message request ) throws Throwable {
+	public Response process( Request request ) throws Throwable {
 		List<Filter> internalFilterList = new ArrayList<Filter>(filterList);
 		
 		Filter lastFilter = null;
@@ -29,8 +30,8 @@ public class BasicFrontHandler implements FrontHandler {
 			lastFilter = internalFilterList.get( internalFilterList.size() - 1 );
 		}
 		
-		if (lastFilter == null || !LastFilter.class.isAssignableFrom( lastFilter.getClass() )) {
-			lastFilter = new LastFilter();
+		if (lastFilter == null || !DispatchFilter.class.isAssignableFrom( lastFilter.getClass() )) {
+			lastFilter = new DispatchFilter();
 			internalFilterList.add( lastFilter );
 		}
 		
@@ -38,11 +39,11 @@ public class BasicFrontHandler implements FrontHandler {
 		return internalFilterChain.doFilter( request );
 	}
 	
-	class LastFilter implements Filter {
+	class DispatchFilter implements Filter {
 		
 		@Override
-		public Message doFilter( Message request, FilterChain filterChain ) throws Throwable {
-			return dispatcher.dispatch( request );
+		public Response doFilter( Request request, FilterChain filterChain ) throws Throwable {
+			return dispatcher.process( request );
 		}
 	}
 }

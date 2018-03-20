@@ -3,7 +3,8 @@ package com.example.springboot.common.dispatcher.filter;
 import java.util.Iterator;
 import java.util.List;
 
-import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public class SingleThreadFilterChain extends AbstractFilterChain {
 
@@ -16,8 +17,8 @@ public class SingleThreadFilterChain extends AbstractFilterChain {
 	}
 
 	@Override
-	public Message doFilter(Message request) throws Throwable {
-		Message response = null;
+	public Response doFilter(Request request) throws Throwable {
+		Response response = null;
 		
 		if (iterator == null) {
 			iterator = filterList.iterator();

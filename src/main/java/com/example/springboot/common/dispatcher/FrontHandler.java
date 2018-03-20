@@ -1,8 +1,9 @@
 package com.example.springboot.common.dispatcher;
 
-import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public interface FrontHandler {
 
-	Message execute(Message request) throws Throwable;
+	Response process(Request request) throws Throwable;
 }

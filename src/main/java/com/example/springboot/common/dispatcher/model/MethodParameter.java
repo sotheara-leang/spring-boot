@@ -1,50 +1,60 @@
 package com.example.springboot.common.dispatcher.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 public class MethodParameter {
 
-	private String parameterName;
-	private Class<?> parameterType;
-	private int parameterIndex;
-	private Annotation[] parameterAnnotations;
+	private String name;
+	private Class<?> type;
+	private Type[] genericTypes;
+	private int index;
+	private Annotation[] annotations;
 	
-	public String getParameterName() {
-		return parameterName;
+	public String getName() {
+		return name;
 	}
-	
-	public void setParameterName( String parameterName ) {
-		this.parameterName = parameterName;
+
+	public void setName( String name ) {
+		this.name = name;
 	}
-	
-	public Class<?> getParameterType() {
-		return parameterType;
+
+	public Class<?> getType() {
+		return type;
 	}
-	
-	public void setParameterType( Class<?> parameterType ) {
-		this.parameterType = parameterType;
+
+	public void setType( Class<?> type ) {
+		this.type = type;
 	}
-	
-	public int getParameterIndex() {
-		return parameterIndex;
+
+	public Type[] getGenericTypes() {
+		return genericTypes;
 	}
-	
-	public void setParameterIndex( int parameterIndex ) {
-		this.parameterIndex = parameterIndex;
+
+	public void setGenericTypes( Type[] genericTypes ) {
+		this.genericTypes = genericTypes;
 	}
-	
-	public Annotation[] getParameterAnnotations() {
-		return parameterAnnotations;
+
+	public int getIndex() {
+		return index;
 	}
-	
-	public void setParameterAnnotations( Annotation[] parameterAnnotations ) {
-		this.parameterAnnotations = parameterAnnotations;
+
+	public void setIndex( int index ) {
+		this.index = index;
 	}
-	
+
+	public Annotation[] getAnnotations() {
+		return annotations;
+	}
+
+	public void setAnnotations( Annotation[] annotations ) {
+		this.annotations = annotations;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
-		Annotation[] anns = getParameterAnnotations();
+		Annotation[] anns = getAnnotations();
 		for (Annotation ann : anns) {
 			if (annotationType.isInstance(ann)) {
 				return (A) ann;
@@ -59,8 +69,7 @@ public class MethodParameter {
 
 	@Override
 	public String toString() {
-		return "MethodParameter [parameterName=" + parameterName + ", parameterType=" + parameterType
-				+ ", parameterIndex=" + parameterIndex + ", parameterAnnotations="
-				+ Arrays.toString( parameterAnnotations ) + "]";
+		return "MethodParameter [name=" + name + ", type=" + type + ", genericTypes=" + Arrays.toString( genericTypes )
+				+ ", index=" + index + ", annotations=" + Arrays.toString( annotations ) + "]";
 	}
 }

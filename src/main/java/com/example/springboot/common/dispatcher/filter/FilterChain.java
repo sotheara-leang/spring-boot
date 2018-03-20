@@ -2,11 +2,12 @@ package com.example.springboot.common.dispatcher.filter;
 
 import java.util.List;
 
-import com.example.springboot.common.dispatcher.model.Message;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 
 public interface FilterChain {
 
-	Message doFilter(Message request) throws Throwable;
+	Response doFilter(Request request) throws Throwable;
 	
 	List<Filter> getFilterList();
 }

@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.springboot.AbstractServiceTest;
 import com.example.springboot.common.dispatcher.FrontHandler;
-import com.example.springboot.common.dispatcher.model.Message;
-import com.example.springboot.common.dispatcher.model.MessageHeaders;
+import com.example.springboot.common.dispatcher.model.Request;
+import com.example.springboot.common.dispatcher.model.Response;
 import com.example.springboot.dto.MyDto;
 
 public class DispatcherTest extends AbstractServiceTest {
@@ -16,12 +16,10 @@ public class DispatcherTest extends AbstractServiceTest {
 	
 	@Test
 	public void testHandle1() throws Throwable {
-		MessageHeaders headers = new MessageHeaders();
-		headers.put( MessageHeaders.REQ_PATH, "/handle1" );
+		Request request = new Request();
+		request.setPath( "/handle1" );
 		
-		Message request = new Message(headers, new MyDto());
-		
-		Message response = frontHandler.execute( request );
+		Response response = frontHandler.process( request );
 		
 		System.out.println( request );
 		System.out.println( response );
@@ -29,12 +27,11 @@ public class DispatcherTest extends AbstractServiceTest {
 	
 	@Test
 	public void testHandle2() throws Throwable {
-		MessageHeaders headers = new MessageHeaders();
-		headers.put( MessageHeaders.REQ_PATH, "/handle2" );
+		Request request = new Request();
+		request.setPath( "/handle2" );
+		request.setBody( new MyDto() );
 		
-		Message request = new Message(headers, new MyDto());
-		
-		Message response = frontHandler.execute( request );
+		Response response = frontHandler.process( request );
 		
 		System.out.println( request );
 		System.out.println( response );
@@ -42,12 +39,10 @@ public class DispatcherTest extends AbstractServiceTest {
 	
 	@Test
 	public void testTestUnknownPath() throws Throwable {
-		MessageHeaders headers = new MessageHeaders();
-		headers.put( MessageHeaders.REQ_PATH, "/unknown" );
+		Request request = new Request();
+		request.setPath( "/unkown" );
 		
-		Message request = new Message(headers, new MyDto());
-		
-		Message response = frontHandler.execute( request );
+		Response response = frontHandler.process( request );
 		
 		System.out.println( request );
 		System.out.println( response );
@@ -55,14 +50,13 @@ public class DispatcherTest extends AbstractServiceTest {
 	
 	@Test
 	public void testTestAnnotation() throws Throwable {
-		MessageHeaders headers = new MessageHeaders();
-		headers.put( MessageHeaders.REQ_PATH, "/handle3" );
-		headers.put( "myHeader", "Hello" );
-		headers.put( "intHeader", 2 );
+		Request request = new Request();
+		request.setPath( "/handle3" );
+		request.setHeader( "myHeader", "Hello" );
+		request.setHeader( "intHeader", 2 );
+		request.setBody( new MyDto() );
 		
-		Message request = new Message(headers, new MyDto());
-		
-		Message response = frontHandler.execute( request );
+		Response response = frontHandler.process( request );
 		
 		System.out.println( request );
 		System.out.println( response );
