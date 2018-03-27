@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.slf4j.Logger;
@@ -34,8 +35,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import io.leangen.geantyref.TypeFactory;
 
 public class APIConnector {
 	
@@ -73,7 +72,7 @@ public class APIConnector {
 	
 	public <RES> RES get(String url, Object request, Class<?> clazz, Type... classArgs) throws RestClientException {
 		Assert.notNull(clazz, "clazz must not be null");
-		return get(url, request, ParameterizedTypeReference.forType( TypeFactory.parameterizedClass( clazz, classArgs ) ));
+		return get(url, request, getParamterziedType( clazz, classArgs ) );
 	}
 	
 	public <RES> RES get(String url, Object request, ParameterizedTypeReference<RES> responseType) throws RestClientException {
@@ -265,7 +264,7 @@ public class APIConnector {
 	/* Useful functions */
 	
 	protected <T> ParameterizedTypeReference<T> getParamterziedType(Class<?> clazz, Type... classArgs) {
-		return ParameterizedTypeReference.forType( TypeFactory.parameterizedClass(clazz, classArgs));
+		return ParameterizedTypeReference.forType( TypeUtils.parameterize(clazz, classArgs));
 	}
 	
 	protected String serialize(Object object) {

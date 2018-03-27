@@ -43,7 +43,7 @@ public class APIConnectorTest extends AbstractWebTest {
 
 	@Test
 	public void testGetGeneric() throws Exception {
-		Message<UserDto> response = connector.get( "/api/generic", Message.class, UserDto.class);
+		Message<UserDto> response = connector.get( "/api/generic", null, Message.class, UserDto.class);
 		System.out.println(response);
 	}
 

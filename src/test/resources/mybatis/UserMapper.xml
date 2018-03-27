@@ -13,9 +13,7 @@
 		SELECT * FROM user 
 		WHERE 
 			last_name = #{lastName}
-			<if test="firstName != null">
-				AND first_name = #{firstName}
-			</if>
+			AND first_name = #{firstName}
 	</select>
 	
 	<select id="selectByPage" resultType="com.example.springboot.dto.UserDto">

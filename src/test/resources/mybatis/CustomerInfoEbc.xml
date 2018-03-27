@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ppcb.apsara.pcm.pcu.ebi.CustomerInfoEbc">
+
+	<resultMap type="com.example.springboot.dto.CustomerInfoDTO" id="customerInfoRM">
+		<result column="CSTNO" property="customerID" />
+	</resultMap>
+
+	<select id="inquiryCustomerInfoByCustomerNo2" resultType="com.example.springboot.dto.CustomerInfoDTO">
+		select
+	         CSTNO                        as customerID							 /* 고객번호                 */          
+	        ,FRMW_CHNG_TMST               as frameworkChangeTimeStamp            /* 프레임워크변경타임스탬프 */                  
+	        ,CUST_STCD                    as customerStatusCode                  /* 고객상태코드             */            
+	        ,TX_CUST_YN                   as transactionCustomerYN               /* 거래고객여부             */            
+	        ,CUST_IDVD_CRPT_DVCD          as customerCorpIndTypeCode             /* 고객개인법인구분코드     */                
+	        ,CUST_RNNO_DVCD               as customerIDNoTypeCode                /* 고객실명번호구분코드     */                
+	        ,RNNO                         as realIDNo                            /* 실명번호                 */          
+	        ,RLNM_DVN_NO                  as realNameDivideNo                    /* 실명분할번호             */            
+	        ,CUST_LOC_NM                  as localCustomerName                   /* 고객로컬명               */           
+	        ,CUST_LOC_LAST_NM             as customerLocalLastName               /* 고객로칼최종명           */             
+	        ,CUST_LOC_FRST_NM             as customerLocalFirstName              /* 고객로칼최초명           */             
+	        ,CUST_NM                      as customerName                        /* 고객명                   */         
+	        ,CUST_LAST_NM                 as customerLastName                    /* 고객최종명               */           
+	        ,CUST_MID_NM                  as customerMiddleName                  /* 고객중간명               */           
+	        ,CUST_FRST_NM                 as customerFirstName                   /* 고객최초명               */           
+	        ,CHTR_CD                      as personCharacteristicCode            /* 인격코드                 */          
+	        ,NTNT_CNTRY_CD                as nationalityCountryCode              /* 국적국가코드             */            
+	        ,RSDN_CNTRY_CD                as residentCountryCode                 /* 거주지국가코드           */             
+	        ,RSDNT_DVCD                   as residentTypeCode                    /* 거주자구분코드           */             
+	        ,CUST_PSML_RCPP_DVCD          as customerPostalAddressTypeCode       /* 고객우편물수령지구분코드 */                  
+	        ,OJBB_SLRY_TRSF_YN            as ourBankSalaryAutoTransferYN         /* 당행급여이체여부         */              
+	        ,SLRY_PRVS_DD                 as payrollPayDate                      /* 급여지급일               */           
+	        ,MNTR_BANK_CD                 as mainTransactionBankCode             /* 주거래은행코드           */             
+	        ,CUST_NEW_DT                  as customerNewDate                     /* 고객신규일자             */            
+	        ,CUST_NEW_BRCD                as customerNewBranchCode               /* 고객신규부점코드         */              
+	        ,CUST_NEW_EMPNO               as customerNewEmpNo                    /* 고객신규직원번호         */              
+	        ,EXRS_MGMT_BRCD               as dedicateBranchCode                  /* 전담관리부점코드         */              
+	        ,EXRS_MGMT_EMPNO              as dedicateMgmtEmpNo                   /* 전담관리직원번호         */              
+	        ,EXRS_CHOIC_RSCD              as dedicateAssignReasonCode            /* 전담선정사유코드         */              
+	        ,NXTR_EXRS_MGMT_BRN_STDD      as nextDedicateMgmtBranchStartDate     /* 차기전담관리부점시작일자 */                  
+	        ,NXTR_EXRS_MGMT_BRCD          as nextDedicateMgmtBranchCode          /* 차기전담관리부점코드     */                
+	        ,NXTR_EXRS_CHOIC_RSCD         as nextDedicateChoiceReasonCode        /* 차기전담선정사유코드     */                
+	        ,SAME_CSTNO                   as sameCustomerNo                      /* 동일고객번호             */            
+	        ,SQ2_PSPT_NO                  as bank2ndPassportNo                   /* 2차여권번호              */           
+	        ,PSPT_VLD_DT                  as passportExpiryDate                  /* 여권유효일자             */            
+	        ,CHNL_DTLS_CLCD               as channelDetailTypeCode               /* 채널세부분류코드         */              
+	        ,CUST_SGST_EMPNO              as customerReferralEmpNo               /* 고객권유직원번호         */              
+	        ,SGST_CUST_CSTNO              as recommendCustomerNo                 /* 권유고객고객번호         */              
+	        ,CUST_EMAIL_NOTI_DVCD         as customerEmailNotifyTypeCode         /* 고객이메일통지구분코드   */                 
+	        ,FRST_REG_BRCD                as firstRegisterBranchCode             /* 최초등록부점코드         */              
+	        ,FRST_REG_DTTM                as firstRegisterDateTime               /* 최초등록일시             */            
+	        ,FRST_REG_EMPNO               as firstRegisterEmpNo                  /* 최초등록직원번호         */              
+	        ,LAST_CHNG_BRCD               as lastChangeBranchCode                /* 최종변경부점코드         */              
+	        ,LAST_CHNG_DTTM               as lastChangeDateTime                  /* 최종변경일시             */            
+	        ,LAST_CHNG_EMPNO              as lastChangeEmpNo                     /* 최종변경직원번호         */              
+		from
+			COPCU_CUSMT_M
+		where
+			CSTNO = #{customerID}
+	</select>
+	
+	<select id="inquiryCustomerInfoByCustomerNo">
+		select
+	         CSTNO                        as customerID							 /* 고객번호                 */          
+	        ,FRMW_CHNG_TMST               as frameworkChangeTimeStamp            /* 프레임워크변경타임스탬프 */                  
+	        ,CUST_STCD                    as customerStatusCode                  /* 고객상태코드             */            
+	        ,TX_CUST_YN                   as transactionCustomerYN               /* 거래고객여부             */            
+	        ,CUST_IDVD_CRPT_DVCD          as customerCorpIndTypeCode             /* 고객개인법인구분코드     */                
+	        ,CUST_RNNO_DVCD               as customerIDNoTypeCode                /* 고객실명번호구분코드     */                
+	        ,RNNO                         as realIDNo                            /* 실명번호                 */          
+	        ,RLNM_DVN_NO                  as realNameDivideNo                    /* 실명분할번호             */            
+	        ,CUST_LOC_NM                  as localCustomerName                   /* 고객로컬명               */           
+	        ,CUST_LOC_LAST_NM             as customerLocalLastName               /* 고객로칼최종명           */             
+	        ,CUST_LOC_FRST_NM             as customerLocalFirstName              /* 고객로칼최초명           */             
+	        ,CUST_NM                      as customerName                        /* 고객명                   */         
+	        ,CUST_LAST_NM                 as customerLastName                    /* 고객최종명               */           
+	        ,CUST_MID_NM                  as customerMiddleName                  /* 고객중간명               */           
+	        ,CUST_FRST_NM                 as customerFirstName                   /* 고객최초명               */           
+	        ,CHTR_CD                      as personCharacteristicCode            /* 인격코드                 */          
+	        ,NTNT_CNTRY_CD                as nationalityCountryCode              /* 국적국가코드             */            
+	        ,RSDN_CNTRY_CD                as residentCountryCode                 /* 거주지국가코드           */             
+	        ,RSDNT_DVCD                   as residentTypeCode                    /* 거주자구분코드           */             
+	        ,CUST_PSML_RCPP_DVCD          as customerPostalAddressTypeCode       /* 고객우편물수령지구분코드 */                  
+	        ,OJBB_SLRY_TRSF_YN            as ourBankSalaryAutoTransferYN         /* 당행급여이체여부         */              
+	        ,SLRY_PRVS_DD                 as payrollPayDate                      /* 급여지급일               */           
+	        ,MNTR_BANK_CD                 as mainTransactionBankCode             /* 주거래은행코드           */             
+	        ,CUST_NEW_DT                  as customerNewDate                     /* 고객신규일자             */            
+	        ,CUST_NEW_BRCD                as customerNewBranchCode               /* 고객신규부점코드         */              
+	        ,CUST_NEW_EMPNO               as customerNewEmpNo                    /* 고객신규직원번호         */              
+	        ,EXRS_MGMT_BRCD               as dedicateBranchCode                  /* 전담관리부점코드         */              
+	        ,EXRS_MGMT_EMPNO              as dedicateMgmtEmpNo                   /* 전담관리직원번호         */              
+	        ,EXRS_CHOIC_RSCD              as dedicateAssignReasonCode            /* 전담선정사유코드         */              
+	        ,NXTR_EXRS_MGMT_BRN_STDD      as nextDedicateMgmtBranchStartDate     /* 차기전담관리부점시작일자 */                  
+	        ,NXTR_EXRS_MGMT_BRCD          as nextDedicateMgmtBranchCode          /* 차기전담관리부점코드     */                
+	        ,NXTR_EXRS_CHOIC_RSCD         as nextDedicateChoiceReasonCode        /* 차기전담선정사유코드     */                
+	        ,SAME_CSTNO                   as sameCustomerNo                      /* 동일고객번호             */            
+	        ,SQ2_PSPT_NO                  as bank2ndPassportNo                   /* 2차여권번호              */           
+	        ,PSPT_VLD_DT                  as passportExpiryDate                  /* 여권유효일자             */            
+	        ,CHNL_DTLS_CLCD               as channelDetailTypeCode               /* 채널세부분류코드         */              
+	        ,CUST_SGST_EMPNO              as customerReferralEmpNo               /* 고객권유직원번호         */              
+	        ,SGST_CUST_CSTNO              as recommendCustomerNo                 /* 권유고객고객번호         */              
+	        ,CUST_EMAIL_NOTI_DVCD         as customerEmailNotifyTypeCode         /* 고객이메일통지구분코드   */                 
+	        ,FRST_REG_BRCD                as firstRegisterBranchCode             /* 최초등록부점코드         */              
+	        ,FRST_REG_DTTM                as firstRegisterDateTime               /* 최초등록일시             */            
+	        ,FRST_REG_EMPNO               as firstRegisterEmpNo                  /* 최초등록직원번호         */              
+	        ,LAST_CHNG_BRCD               as lastChangeBranchCode                /* 최종변경부점코드         */              
+	        ,LAST_CHNG_DTTM               as lastChangeDateTime                  /* 최종변경일시             */            
+	        ,LAST_CHNG_EMPNO              as lastChangeEmpNo                     /* 최종변경직원번호         */              
+		from
+			COPCU_CUSMT_M
+		where
+			CSTNO = #{customerID}
+	</select>
+	
+	
+	<insert id="regtCustomerInfo">
+		INSERT INTO COPCU_CUSMT_M
+		(
+			 CSTNO                    
+			,FRMW_CHNG_TMST          
+			,CUST_STCD               
+			,TX_CUST_YN              
+			,CUST_IDVD_CRPT_DVCD     
+			,CUST_RNNO_DVCD          
+			,RNNO                    
+			,RLNM_DVN_NO             
+			,CUST_LOC_NM             
+			,CUST_LOC_LAST_NM        
+			,CUST_LOC_FRST_NM        
+			,CUST_NM                 
+			,CUST_LAST_NM            
+			,CUST_MID_NM             
+			,CUST_FRST_NM            
+			,CHTR_CD                 
+			,NTNT_CNTRY_CD           
+			,RSDN_CNTRY_CD           
+			,RSDNT_DVCD              
+			,CUST_PSML_RCPP_DVCD     
+			,OJBB_SLRY_TRSF_YN       
+			,SLRY_PRVS_DD            
+			,MNTR_BANK_CD            
+			,CUST_NEW_DT             
+			,CUST_NEW_BRCD           
+			,CUST_NEW_EMPNO          
+			,EXRS_MGMT_BRCD          
+			,EXRS_MGMT_EMPNO         
+			,EXRS_CHOIC_RSCD         
+			,NXTR_EXRS_MGMT_BRN_STDD  
+			,NXTR_EXRS_MGMT_BRCD     
+			,NXTR_EXRS_CHOIC_RSCD    
+			,SAME_CSTNO              
+			,SQ2_PSPT_NO             
+			,PSPT_VLD_DT             
+			,CHNL_DTLS_CLCD          
+			,CUST_SGST_EMPNO         
+			,SGST_CUST_CSTNO         
+			,CUST_EMAIL_NOTI_DVCD    
+			,FRST_REG_BRCD           
+			,FRST_REG_DTTM           
+			,FRST_REG_EMPNO          
+			,LAST_CHNG_BRCD          
+			,LAST_CHNG_DTTM          
+			,LAST_CHNG_EMPNO         
+		)
+		VALUES
+		(
+			 #{customerID}							/* 고객번호                 */
+			,#{frameworkChangeTimeStamp}            /* 프레임워크변경타임스탬프 */
+			,#{customerStatusCode}                  /* 고객상태코드             */
+			,#{transactionCustomerYN}               /* 거래고객여부             */
+			,#{customerCorpIndTypeCode}             /* 고객개인법인구분코드     */
+			,#{customerIDNoTypeCode}                /* 고객실명번호구분코드     */
+			,#{realIDNo}                            /* 실명번호                 */
+			,#{realNameDivideNo}                    /* 실명분할번호             */
+			,#{localCustomerName}                   /* 고객로컬명               */
+			,#{customerLocalLastName}               /* 고객로칼최종명           */
+			,#{customerLocalFirstName}              /* 고객로칼최초명           */
+			,#{customerName}                        /* 고객명                   */
+			,#{customerLastName}                    /* 고객최종명               */
+			,#{customerMiddleName}                  /* 고객중간명               */
+			,#{customerFirstName}                   /* 고객최초명               */
+			,#{personCharacteristicCode}            /* 인격코드                 */
+			,#{nationalityCountryCode}              /* 국적국가코드             */
+			,#{residentCountryCode}                 /* 거주지국가코드           */
+			,#{residentTypeCode}                    /* 거주자구분코드           */
+			,#{customerPostalAddressTypeCode}       /* 고객우편물수령지구분코드 */
+			,#{ourBankSalaryAutoTransferYN}         /* 당행급여이체여부         */
+			,#{payrollPayDate}                      /* 급여지급일               */
+			,#{mainTransactionBankCode}             /* 주거래은행코드           */
+			,#{customerNewDate}                     /* 고객신규일자             */
+			,#{customerNewBranchCode}               /* 고객신규부점코드         */
+			,#{customerNewEmpNo}                    /* 고객신규직원번호         */
+			,#{dedicateBranchCode}                  /* 전담관리부점코드         */
+			,#{dedicateMgmtEmpNo}                   /* 전담관리직원번호         */
+			,#{dedicateAssignReasonCode}            /* 전담선정사유코드         */
+			,#{nextDedicateMgmtBranchStartDate}     /* 차기전담관리부점시작일자 */
+			,#{nextDedicateMgmtBranchCode}          /* 차기전담관리부점코드     */
+			,#{nextDedicateChoiceReasonCode}        /* 차기전담선정사유코드     */
+			,#{sameCustomerNo}                      /* 동일고객번호             */
+			,#{bank2ndPassportNo}                   /* 2차여권번호              */
+			,#{passportExpiryDate}                  /* 여권유효일자             */
+			,#{channelDetailTypeCode}               /* 채널세부분류코드         */
+			,#{customerReferralEmpNo}               /* 고객권유직원번호         */
+			,#{recommendCustomerNo}                 /* 권유고객고객번호         */
+			,#{customerEmailNotifyTypeCode}         /* 고객이메일통지구분코드   */
+			,#{firstRegisterBranchCode}             /* 최초등록부점코드         */
+			,#{firstRegisterDateTime}               /* 최초등록일시             */
+			,#{firstRegisterEmpNo}                  /* 최초등록직원번호         */
+			,#{lastChangeBranchCode}                /* 최종변경부점코드         */
+			,#{lastChangeDateTime}                  /* 최종변경일시             */
+			,#{lastChangeEmpNo}                     /* 최종변경직원번호         */
+		)
+	</insert>
+	
+</mapper>

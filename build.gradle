@@ -49,8 +49,6 @@ dependencies {
 	
 	compile('org.springframework.boot:spring-boot-starter-aop')
 	
-	compile('io.leangen.geantyref:geantyref:1.3.2')
-	
 	runtime('org.springframework.boot:spring-boot-devtools')
 	
 	// other
@@ -59,7 +57,7 @@ dependencies {
 	
 	compile('commons-lang:commons-lang:2.6')
 	
-	compile('org.apache.commons:commons-lang3:3.0')
+	compile('org.apache.commons:commons-lang3:3.4')
 	
 	compile('commons-beanutils:commons-beanutils:1.8.3')
 	
@@ -71,9 +69,15 @@ dependencies {
 	
 	compile('mysql:mysql-connector-java:5.1.21')
 	
+	compile('com.github.jsqlparser:jsqlparser:1.1')
+	
 	runtime('com.h2database:h2')
 	
 	compileOnly('org.projectlombok:lombok')
+	
+	compileOnly('com.github.therapi:therapi-runtime-javadoc-scribe:0.4.0')
+	
+	compile('com.github.therapi:therapi-runtime-javadoc:0.4.0')
 	
 	// test
 	
@@ -126,3 +130,6 @@ task exportConfigFile {
 
 build.finalizedBy(exportDeploy)
 
+tasks.withType(JavaCompile) {            
+  options.compilerArgs << "-Ajavadoc.packages=com.example.springboot"
+}
