@@ -26,14 +26,13 @@ import org.springframework.core.ParameterNameDiscoverer;
 import com.example.springboot.common.dispatcher.annotation.Controller;
 import com.example.springboot.common.dispatcher.annotation.RequestMapping;
 import com.example.springboot.common.dispatcher.exception.HandlerNotFoundException;
-import com.example.springboot.common.dispatcher.exception.RequestInvalidException;
 import com.example.springboot.common.dispatcher.exception.ParameterInvalidException;
+import com.example.springboot.common.dispatcher.exception.RequestInvalidException;
 import com.example.springboot.common.dispatcher.model.HandlingMappingInfo;
 import com.example.springboot.common.dispatcher.model.Headers;
-import com.example.springboot.common.dispatcher.model.MethodParameter;
 import com.example.springboot.common.dispatcher.model.Request;
 import com.example.springboot.common.dispatcher.model.Response;
-import com.example.springboot.common.dispatcher.resolver.HandlerMethodParameterResolver;
+import com.example.springboot.common.dispatcher.resolver.ParameterResolver;
 
 public class BasicDispatcher implements ApplicationContextAware, InitializingBean, Dispatcher {
 
@@ -43,7 +42,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 
 	protected Map<String, HandlingMappingInfo> handlingMappingInfoMap = new HashMap<String, HandlingMappingInfo>();
 
-	protected List<HandlerMethodParameterResolver> parameterResolvers;
+	protected List<ParameterResolver> parameterResolvers;
 
 	@Override
 	public void setApplicationContext( ApplicationContext applicationContext ) throws BeansException {
@@ -126,9 +125,9 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				String[] parameterNames = discoverer.getParameterNames( method );
 				
 				for ( int i = 0; i < methodParamters.length; i++ ) {
-					Parameter parameter = methodParamters[i];
+					Parameter param = methodParamters[i];
 					String paramName = parameterNames[i];
-					Class<?> paramType = parameter.getType();
+					Class<?> paramType = param.getType();
 					
 					// default parameters
 					if ( Request.class.isAssignableFrom( paramType ) ) {
@@ -141,30 +140,30 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 						continue;
 					}
 					
-					MethodParameter methodParameter = new MethodParameter();
-					methodParameter.setName( paramName );
-					methodParameter.setType( paramType );
-					methodParameter.setIndex( i );
-					methodParameter.setAnnotations( parameter.getAnnotations() );
+					com.example.springboot.common.dispatcher.model.Parameter handlingParameter = new com.example.springboot.common.dispatcher.model.Parameter();
+					handlingParameter.setName( paramName );
+					handlingParameter.setType( paramType );
+					handlingParameter.setIndex( i );
+					handlingParameter.setAnnotations( handlingParameter.getAnnotations() );
 					
 					// define parameter generic type
-					Type paramGenericType = parameter.getParameterizedType();
+					Type paramGenericType = param.getParameterizedType();
 					if (paramGenericType instanceof ParameterizedType) {
 						ParameterizedType paramParameterizedType = (ParameterizedType) paramGenericType;
 						Type[] actualTypeArguments = paramParameterizedType.getActualTypeArguments();
 						
-						methodParameter.setGenericTypes( actualTypeArguments );
+						handlingParameter.setGenericTypes( actualTypeArguments );
 					}
 					
 					// filter parameter
 					Object resolvedParamter = null;
 					if ( parameterResolvers != null ) {
-						for ( HandlerMethodParameterResolver resolver : parameterResolvers ) {
-							if ( resolver.supportsParameter( methodParameter ) ) {
+						for ( ParameterResolver resolver : parameterResolvers ) {
+							if ( resolver.supportsParameter( handlingParameter ) ) {
 								try {
-									resolvedParamter = resolver.resolveParemeter( methodParameter, request );
+									resolvedParamter = resolver.resolveParameter( handlingParameter, request );
 								} catch ( Exception e ) {
-									logger.error( "Error resolve parameter: {}, {}", methodParameter, request, e );
+									logger.error( "Error resolve parameter: {}, {}", handlingParameter, request, e );
 									throw new ParameterInvalidException( e );
 								}
 								break;
@@ -206,11 +205,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		return response;
 	}
 
-	public List<HandlerMethodParameterResolver> getParameterResolvers() {
+	public List<ParameterResolver> getParameterResolvers() {
 		return parameterResolvers;
 	}
 
-	public void setParameterResolvers( List<HandlerMethodParameterResolver> parameterResolvers ) {
+	public void setParameterResolvers( List<ParameterResolver> parameterResolvers ) {
 		this.parameterResolvers = parameterResolvers;
 	}
 }

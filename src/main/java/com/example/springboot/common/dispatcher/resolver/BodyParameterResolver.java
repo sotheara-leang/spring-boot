@@ -7,20 +7,20 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 
 import com.example.springboot.common.dispatcher.annotation.Body;
 import com.example.springboot.common.dispatcher.exception.ParameterRequiredException;
-import com.example.springboot.common.dispatcher.model.MethodParameter;
+import com.example.springboot.common.dispatcher.model.Parameter;
 import com.example.springboot.common.dispatcher.model.Request;
 import com.example.springboot.common.util.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.JavaType;
 
-public class BodyParameterResolver implements HandlerMethodParameterResolver {
+public class BodyParameterResolver implements ParameterResolver {
 
 	@Override
-	public boolean supportsParameter( MethodParameter parameter ) {
+	public boolean supportsParameter( Parameter parameter ) {
 		return parameter.hasParameterAnnotation( Body.class );
 	}
 	
 	@Override
-	public Object resolveParemeter( MethodParameter parameter, Request request ) {
+	public Object resolveParameter( Parameter parameter, Request request ) {
 		Object convertedValue = null;
 		
 		Body annotation = parameter.getParameterAnnotation( Body.class );

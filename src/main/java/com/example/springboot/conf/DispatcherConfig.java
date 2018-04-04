@@ -13,7 +13,7 @@ import com.example.springboot.common.dispatcher.FrontHandler;
 import com.example.springboot.common.dispatcher.filter.Filter;
 import com.example.springboot.common.dispatcher.filter.LoggingFilter;
 import com.example.springboot.common.dispatcher.resolver.BodyParameterResolver;
-import com.example.springboot.common.dispatcher.resolver.HandlerMethodParameterResolver;
+import com.example.springboot.common.dispatcher.resolver.ParameterResolver;
 import com.example.springboot.common.dispatcher.resolver.HeaderParameterResolver;
 
 @Configuration
@@ -21,7 +21,7 @@ public class DispatcherConfig {
 
 	@Bean
 	public Dispatcher dispatcher() {
-		List<HandlerMethodParameterResolver> parameterResolvers = new ArrayList<HandlerMethodParameterResolver>();
+		List<ParameterResolver> parameterResolvers = new ArrayList<ParameterResolver>();
 		parameterResolvers.add( new HeaderParameterResolver());
 		parameterResolvers.add( new BodyParameterResolver() );
 		

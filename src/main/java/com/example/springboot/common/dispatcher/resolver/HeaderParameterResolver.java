@@ -10,20 +10,20 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import com.example.springboot.common.dispatcher.annotation.Header;
 import com.example.springboot.common.dispatcher.exception.ParameterRequiredException;
 import com.example.springboot.common.dispatcher.model.Headers;
-import com.example.springboot.common.dispatcher.model.MethodParameter;
+import com.example.springboot.common.dispatcher.model.Parameter;
 import com.example.springboot.common.dispatcher.model.Request;
 import com.example.springboot.common.util.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.JavaType;
 
-public class HeaderParameterResolver implements HandlerMethodParameterResolver {
+public class HeaderParameterResolver implements ParameterResolver {
 
 	@Override
-	public boolean supportsParameter( MethodParameter parameter ) {
+	public boolean supportsParameter( Parameter parameter ) {
 		return parameter.hasParameterAnnotation( Header.class );
 	}
 
 	@Override
-	public Object resolveParemeter( MethodParameter parameter, Request request ) {
+	public Object resolveParameter( Parameter parameter, Request request ) {
 		String paramName = parameter.getName();
 		Headers headers = request.getHeaders();
 		
