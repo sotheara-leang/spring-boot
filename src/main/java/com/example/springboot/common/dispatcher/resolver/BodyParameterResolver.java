@@ -16,18 +16,20 @@ public class BodyParameterResolver implements ParameterResolver {
 
 	@Override
 	public boolean supportsParameter( Parameter parameter ) {
-		return parameter.hasParameterAnnotation( Body.class );
+		return parameter.hasAnnotation( Body.class );
 	}
 	
 	@Override
 	public Object resolveParameter( Parameter parameter, Request request ) {
 		Object convertedValue = null;
 		
-		Body annotation = parameter.getParameterAnnotation( Body.class );
+		Body annotation = parameter.getAnnotation( Body.class );
 		Object requestBody = request.getBody();
 		
-		if (requestBody == null && annotation.required()) {
-			throw new ParameterRequiredException();
+		if ( requestBody == null ) {
+			if ( annotation.required() ) {
+				throw new ParameterRequiredException();
+			}
 		} else {
 			Type[] paramGenericTypes = parameter.getGenericTypes();
 			if (paramGenericTypes == null) {

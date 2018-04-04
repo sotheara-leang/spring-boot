@@ -53,7 +53,7 @@ public class Parameter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		Annotation[] anns = getAnnotations();
 		for (Annotation ann : anns) {
 			if (annotationType.isInstance(ann)) {
@@ -63,8 +63,8 @@ public class Parameter {
 		return null;
 	}
 	
-	public <A extends Annotation> boolean hasParameterAnnotation(Class<A> annotationType) {
-		return (getParameterAnnotation(annotationType) != null);
+	public <A extends Annotation> boolean hasAnnotation(Class<A> annotationType) {
+		return (getAnnotation(annotationType) != null);
 	}
 
 	@Override

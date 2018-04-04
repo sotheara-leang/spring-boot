@@ -11,4 +11,12 @@ public class RequestInvalidException extends RuntimeException {
 	public RequestInvalidException(String message) {
         super(message);
     }
+
+	public RequestInvalidException( String message, Throwable cause ) {
+		super( message, cause );
+	}
+
+	public RequestInvalidException( Throwable cause ) {
+		super( cause );
+	}
 }

@@ -19,7 +19,7 @@ public class HeaderParameterResolver implements ParameterResolver {
 
 	@Override
 	public boolean supportsParameter( Parameter parameter ) {
-		return parameter.hasParameterAnnotation( Header.class );
+		return parameter.hasAnnotation( Header.class );
 	}
 
 	@Override
@@ -27,12 +27,14 @@ public class HeaderParameterResolver implements ParameterResolver {
 		String paramName = parameter.getName();
 		Headers headers = request.getHeaders();
 		
-		Object headerValue = headers.get( paramName );
-		Header annotation = parameter.getParameterAnnotation( Header.class );
+		Header annotation = parameter.getAnnotation( Header.class );
 		String targetParamName = StringUtils.isBlank( annotation.value() ) ? paramName : annotation.value();
 		
-		if (headerValue == null && annotation.required()) {
-			throw new ParameterRequiredException( targetParamName );
+		Object headerValue = headers.get( targetParamName );
+		if ( headerValue == null ) {
+			if ( annotation.required() ) {
+				throw new ParameterRequiredException( targetParamName );
+			}
 		} else {
 			Class<?> methodParamType = ClassUtils.primitiveToWrapper( parameter.getType() );
 			if (!methodParamType.isAssignableFrom( headerValue.getClass() )) {
