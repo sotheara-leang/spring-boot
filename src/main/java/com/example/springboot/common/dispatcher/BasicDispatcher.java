@@ -26,8 +26,10 @@ import org.springframework.core.ParameterNameDiscoverer;
 import com.example.springboot.common.dispatcher.annotation.Controller;
 import com.example.springboot.common.dispatcher.annotation.RequestMapping;
 import com.example.springboot.common.dispatcher.exception.HandlerNotFoundException;
-import com.example.springboot.common.dispatcher.exception.MessageInvalidException;
+import com.example.springboot.common.dispatcher.exception.RequestInvalidException;
+import com.example.springboot.common.dispatcher.exception.ParameterInvalidException;
 import com.example.springboot.common.dispatcher.model.HandlingMappingInfo;
+import com.example.springboot.common.dispatcher.model.Headers;
 import com.example.springboot.common.dispatcher.model.MethodParameter;
 import com.example.springboot.common.dispatcher.model.Request;
 import com.example.springboot.common.dispatcher.model.Response;
@@ -105,8 +107,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		// validation
 		String requestPath = request.getPath();
 		if ( StringUtils.isBlank( requestPath ) ) {
-			logger.warn( "Request path is undefined - Skip message : {}", request );
-			throw new MessageInvalidException("Request url is undefined");
+			logger.error( "Request path is undefined - Skip message : {}", request );
+			throw new RequestInvalidException("Path is undefined");
 		}
 
 		HandlingMappingInfo handlingMappingInfo = handlingMappingInfoMap.get( requestPath );
@@ -128,8 +130,14 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 					String paramName = parameterNames[i];
 					Class<?> paramType = parameter.getType();
 					
+					// default parameters
 					if ( Request.class.isAssignableFrom( paramType ) ) {
 						parameters.add( request );
+						continue;
+					}
+					
+					if ( Headers.class.isAssignableFrom( paramType ) ) {
+						parameters.add( request.getHeaders() );
 						continue;
 					}
 					
@@ -157,6 +165,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 									resolvedParamter = resolver.resolveParemeter( methodParameter, request );
 								} catch ( Exception e ) {
 									logger.error( "Error resolve parameter: {}, {}", methodParameter, request, e );
+									throw new ParameterInvalidException( e );
 								}
 								break;
 							}
@@ -173,7 +182,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			try {
 				returnValue = method.invoke( handler, parameters.toArray() );
 			} catch ( Exception e ) {
-				logger.error( "Error handler invocation: {}", request );
+				logger.error( "Error handling invocation: {}", request );
 				throw e;
 			}
 			response = prepareResponse( returnValue );

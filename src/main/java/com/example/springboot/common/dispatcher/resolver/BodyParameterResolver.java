@@ -11,12 +11,9 @@ import com.example.springboot.common.dispatcher.model.MethodParameter;
 import com.example.springboot.common.dispatcher.model.Request;
 import com.example.springboot.common.util.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BodyParameterResolver implements HandlerMethodParameterResolver {
 
-	private ObjectMapper objectMapper = ObjectMapperUtils.defaultObjectMapper();
-	
 	@Override
 	public boolean supportsParameter( MethodParameter parameter ) {
 		return parameter.hasParameterAnnotation( Body.class );
@@ -34,12 +31,12 @@ public class BodyParameterResolver implements HandlerMethodParameterResolver {
 		} else {
 			Type[] paramGenericTypes = parameter.getGenericTypes();
 			if (paramGenericTypes == null) {
-				convertedValue = objectMapper.convertValue( requestBody, parameter.getType() );
+				convertedValue = ObjectMapperUtils.convert( requestBody, parameter.getType() );
 			} else {
 				ParameterizedType msgDataParameterizedType = TypeUtils.parameterize(parameter.getType(), paramGenericTypes);
-				JavaType msgDataJavaType = objectMapper.getTypeFactory().constructFromCanonical( msgDataParameterizedType.getTypeName() );
+				JavaType msgDataJavaType = ObjectMapperUtils.OBJECT_MAPPER.getTypeFactory().constructFromCanonical( msgDataParameterizedType.getTypeName() );
 				
-				convertedValue = objectMapper.convertValue( requestBody, msgDataJavaType );
+				convertedValue = ObjectMapperUtils.convert( requestBody, msgDataJavaType );
 			}
 		}
 		

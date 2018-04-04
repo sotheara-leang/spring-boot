@@ -51,10 +51,10 @@ dependencies {
 	
 	runtime('org.springframework.boot:spring-boot-devtools')
 	
-	// other
-
+	// liquibase
 	compile('org.liquibase:liquibase-core')
 	
+	// apache common
 	compile('commons-lang:commons-lang:2.6')
 	
 	compile('org.apache.commons:commons-lang3:3.4')
@@ -65,18 +65,25 @@ dependencies {
 	
 	compile('commons-fileupload:commons-fileupload:1.3.3')
 	
+	// quartz
 	compile('org.quartz-scheduler:quartz:2.3.0')
 	
+	// jdbc
 	compile('mysql:mysql-connector-java:5.1.21')
-	
-	compile('com.github.jsqlparser:jsqlparser:1.1')
 	
 	runtime('com.h2database:h2')
 	
+	// fasterxml
+	compile('com.fasterxml.jackson.core:jackson-databind')
+	
+	compile('com.fasterxml.jackson.dataformat:jackson-dataformat-xml')
+	
+	// other
 	compileOnly('org.projectlombok:lombok')
 	
-	compileOnly('com.github.therapi:therapi-runtime-javadoc-scribe:0.4.0')
+	compile('com.github.jsqlparser:jsqlparser:1.1')
 	
+	compileOnly('com.github.therapi:therapi-runtime-javadoc-scribe:0.4.0')
 	compile('com.github.therapi:therapi-runtime-javadoc:0.4.0')
 	
 	// test
@@ -129,7 +136,3 @@ task exportConfigFile {
 }
 
 build.finalizedBy(exportDeploy)
-
-tasks.withType(JavaCompile) {            
-  options.compilerArgs << "-Ajavadoc.packages=com.example.springboot"
-}

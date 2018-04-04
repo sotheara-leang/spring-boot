@@ -22,11 +22,17 @@ public class ObjectMapperUtils {
 		return objectMapper;
 	}
 	
-	public <T> T convert(Object fromValue, TypeReference<T> toTypeReference ) {
+	public static <T> T convert(Object fromValue, TypeReference<T> toTypeReference ) {
 		return OBJECT_MAPPER.convertValue( fromValue, toTypeReference );
 	}
 	
-	public <T> T convert(Object fromValue, JavaType toJavaType ) {
+	public static <T> T convert(Object fromValue, JavaType toJavaType ) {
 		return OBJECT_MAPPER.convertValue( fromValue, toJavaType );
 	}
+	
+	public static <T> T convert(Object fromValue, Class<T> toClass) {
+		return OBJECT_MAPPER.convertValue( fromValue, toClass );
+	}
+	
+	
 }
