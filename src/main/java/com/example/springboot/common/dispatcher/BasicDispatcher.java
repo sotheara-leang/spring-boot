@@ -229,15 +229,16 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				}
 			}
 			
+			logger.info( "Invoke {}.{}() with paramters: {}", handler.getClass().getSimpleName(), method.getName(), parameters );
+			
 			// validate handling parameters
 			ExecutableValidator executableValidator = validator.forExecutables();
 			Set<ConstraintViolation<Object>> constraintViolations = executableValidator.validateParameters( handler, method, parameters.toArray() );
 			if ( !constraintViolations.isEmpty() ) {
-				logger.error( "Handling parameters invalid: {}", constraintViolations );
+				logger.error( "Invocation parameters invalid: {}", constraintViolations );
 				throw new ConstraintViolationException("Handling parameters invalid: " + constraintViolations, constraintViolations );
 			}
 			
-			logger.info( "Invoke {}.{} with paramters: {}", handler.getClass().getName(), method.getName(), parameters );
 			
 			// apply interceptor pre-process
 			for ( Interceptor interceptor : interceptors ) {
@@ -252,7 +253,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			try {
 				returnValue = method.invoke( handler, parameters.toArray() );
 			} catch ( Exception e ) {
-				logger.error( "Error handling invocation: {}", request );
+				logger.error( "Error invoke handling method: {}", request );
 				throw e;
 			}
 			response = prepareResponse( returnValue );
@@ -312,7 +313,7 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	public void setInterceptors( List<Interceptor> interceptors ) {
 		this.interceptors = interceptors;
 	}
-
+	
 	public Validator getValidator() {
 		return validator;
 	}

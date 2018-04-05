@@ -1,5 +1,7 @@
 package com.example.springboot.dispatcher.handler;
 
+import javax.validation.constraints.NotNull;
+
 import com.example.springboot.common.dispatcher.annotation.Body;
 import com.example.springboot.common.dispatcher.annotation.Controller;
 import com.example.springboot.common.dispatcher.annotation.Header;
@@ -24,7 +26,8 @@ public class MyHandler {
 	}
 	
 	@RequestMapping("/handle3")
-	public Object handle3( @Header String myHeader, @Header("intHeader") Integer customHeader, @Body MyDto myDto ) {
-		return "Success handle 2 request";
+	public Object handle3( @NotNull @Header String myHeader, @Header("intHeader") Integer customHeader, @Body MyDto myDto ) throws Exception {
+		throw new Exception( "" );
+//		return "Success handle 2 request";
 	}
 }

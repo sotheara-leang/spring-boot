@@ -12,7 +12,7 @@ public class LoggingFilter implements Filter {
 	
 	@Override
 	public Response doFilter(Request request, FilterChain filterChain) throws Throwable {
-		logger.debug("Accept request message: {}", request);
+		logger.debug("Accept request: {}", request);
 		
 		Response response = null;
 		try {
@@ -22,7 +22,7 @@ public class LoggingFilter implements Filter {
 			throw e;
 		}
 		
-		logger.debug("Return response message: {}", response);
+		logger.debug("Return response: {}", response);
 		
 		return response;
 	}
