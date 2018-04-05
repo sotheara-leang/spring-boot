@@ -37,6 +37,7 @@ import com.example.springboot.common.dispatcher.exception.RequestInvalidExceptio
 import com.example.springboot.common.dispatcher.filter.Filter;
 import com.example.springboot.common.dispatcher.filter.FilterChain;
 import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
+import com.example.springboot.common.dispatcher.interceptor.Interceptor;
 import com.example.springboot.common.dispatcher.model.HandlingMappingInfo;
 import com.example.springboot.common.dispatcher.model.Headers;
 import com.example.springboot.common.dispatcher.model.Request;
@@ -44,6 +45,7 @@ import com.example.springboot.common.dispatcher.model.Response;
 import com.example.springboot.common.dispatcher.resolver.BodyParameterResolver;
 import com.example.springboot.common.dispatcher.resolver.HeaderParameterResolver;
 import com.example.springboot.common.dispatcher.resolver.ParameterResolver;
+import com.example.springboot.common.util.CollectionUtils;
 
 public class BasicDispatcher implements ApplicationContextAware, InitializingBean, Dispatcher {
 
@@ -56,6 +58,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	protected List<Filter> filters = new ArrayList<Filter>();
 
 	protected List<ParameterResolver> parameterResolvers = new ArrayList<ParameterResolver>();
+	
+	protected List<Interceptor> interceptors = new ArrayList<Interceptor>();
 	
 	protected Validator validator;
 
@@ -125,21 +129,10 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 	
 	protected void initParameterResolvers( ) {
-		boolean isHeaderResolverExist = false;
-		boolean isBodyResolverExist = false;
-		for ( ParameterResolver resolver : parameterResolvers ) {
-			if ( resolver instanceof HeaderParameterResolver ) {
-				isHeaderResolverExist = true;
-			}
-			if ( resolver instanceof BodyParameterResolver ) {
-				isBodyResolverExist = true;
-			}
-		}
-		
-		if ( !isHeaderResolverExist ) {
+		if ( !CollectionUtils.existOfType( parameterResolvers, HeaderParameterResolver.class ) ) {
 			parameterResolvers.add( new HeaderParameterResolver() );
 		}
-		if ( !isBodyResolverExist ) {
+		if ( !CollectionUtils.existOfType( parameterResolvers, BodyParameterResolver.class ) ) {
 			parameterResolvers.add( new BodyParameterResolver() );
 		}
 	}
@@ -246,6 +239,14 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			
 			logger.info( "Invoke {}.{} with paramters: {}", handler.getClass().getName(), method.getName(), parameters );
 			
+			// apply interceptor pre-process
+			for ( Interceptor interceptor : interceptors ) {
+				boolean isAccept = interceptor.preProcess( request, response );
+				if ( !isAccept ) {
+					return response;
+				}
+			}
+			
 			// invoke handler
 			Object returnValue = null;
 			try {
@@ -255,6 +256,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				throw e;
 			}
 			response = prepareResponse( returnValue );
+			
+			// apply interceptor post-process
+			for ( Interceptor interceptor : interceptors ) {
+				interceptor.postProcess( request, response );
+			}
 			
 		} else {
 			logger.error( "Unknown request path: {}", request);
@@ -297,6 +303,14 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 
 	public void setFilters( List<Filter> filters ) {
 		this.filters = filters;
+	}
+
+	public List<Interceptor> getInterceptors() {
+		return interceptors;
+	}
+
+	public void setInterceptors( List<Interceptor> interceptors ) {
+		this.interceptors = interceptors;
 	}
 
 	public Validator getValidator() {

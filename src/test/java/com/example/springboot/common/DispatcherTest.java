@@ -52,7 +52,7 @@ public class DispatcherTest extends AbstractServiceTest {
 	public void testTestAnnotation() throws Throwable {
 		Request request = new Request();
 		request.setPath( "/handle3" );
-		//request.setHeader( "myHeader", "Hello" );
+		request.setHeader( "myHeader", "Hello" );
 		request.setHeader( "intHeader", 2 );
 		request.setBody( new MyDto() );
 		
