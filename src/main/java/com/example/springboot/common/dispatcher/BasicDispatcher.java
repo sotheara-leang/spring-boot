@@ -6,6 +6,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
@@ -31,9 +37,11 @@ import org.springframework.core.ParameterNameDiscoverer;
 
 import com.example.springboot.common.dispatcher.annotation.Controller;
 import com.example.springboot.common.dispatcher.annotation.RequestMapping;
+import com.example.springboot.common.dispatcher.exception.ExceptionHandler;
 import com.example.springboot.common.dispatcher.exception.HandlerNotFoundException;
 import com.example.springboot.common.dispatcher.exception.ParameterInvalidException;
 import com.example.springboot.common.dispatcher.exception.RequestInvalidException;
+import com.example.springboot.common.dispatcher.filter.ExceptionHandlerFilter;
 import com.example.springboot.common.dispatcher.filter.Filter;
 import com.example.springboot.common.dispatcher.filter.FilterChain;
 import com.example.springboot.common.dispatcher.filter.SingleThreadFilterChain;
@@ -75,6 +83,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		initValidator();
 		
 		initParameterResolvers();
+		
+		initFilters();
 	}
 
 	protected void initHandlingMappingInfo() throws BeansException, ClassNotFoundException {
@@ -129,6 +139,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 	}
 	
 	protected void initParameterResolvers( ) {
+		Map<String, ParameterResolver> scannedParamResolverMap = applicationContext.getBeansOfType( ParameterResolver.class );
+		Collection<ParameterResolver> scannedParamResolvers = scannedParamResolverMap.values();
+		
+		parameterResolvers.addAll( scannedParamResolvers );
+		
 		if ( !CollectionUtils.existOfType( parameterResolvers, HeaderParameterResolver.class ) ) {
 			parameterResolvers.add( new HeaderParameterResolver() );
 		}
@@ -136,22 +151,47 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			parameterResolvers.add( new BodyParameterResolver() );
 		}
 	}
-
-	@Override
-	public Response process( Request request ) throws Throwable {
-		List<Filter> internalFilters = new ArrayList<Filter>(filters);
+	
+	protected void initFilters() {
+		// register scanned filters
+		Collection<Filter> scannedFilters = applicationContext.getBeansOfType( Filter.class ).values();
 		
+		filters.addAll( scannedFilters );
+		
+		// initialize ExceptionHandlerFilter
+		if ( !CollectionUtils.existOfType( filters, ExceptionHandlerFilter.class ) ) {
+			AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
+			
+			ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+			constructorArgumentValues.addIndexedArgumentValue( 0, applicationContext.getBeansOfType( ExceptionHandler.class ).values() );
+			
+			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+			beanDefinition.setBeanClass( ExceptionHandlerFilter.class );
+			beanDefinition.setConstructorArgumentValues( constructorArgumentValues );
+			beanDefinition.setScope( BeanDefinition.SCOPE_SINGLETON );
+			
+			BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) beanFactory;
+			beanDefinitionRegistry.registerBeanDefinition( "exceptionHandlerFilter", beanDefinition );
+			
+			ExceptionHandlerFilter exceptionHandlerFilter = beanFactory.createBean( ExceptionHandlerFilter.class );
+			filters.add( exceptionHandlerFilter );
+		}
+		
+		// initialize DispatchFilter
 		Filter lastFilter = null;
-		if (internalFilters.size() > 0) {
-			lastFilter = internalFilters.get( internalFilters.size() - 1 );
+		if (filters.size() > 0) {
+			lastFilter = filters.get( filters.size() - 1 );
 		}
 		
 		if (lastFilter == null || !DispatchFilter.class.isAssignableFrom( lastFilter.getClass() )) {
 			lastFilter = new DispatchFilter();
-			internalFilters.add( lastFilter );
+			filters.add( lastFilter );
 		}
-		
-		FilterChain internalFilterChain = new SingleThreadFilterChain( internalFilters );
+	}
+
+	@Override
+	public Response process( Request request ) throws Throwable {
+		FilterChain internalFilterChain = new SingleThreadFilterChain( filters );
 		return internalFilterChain.doFilter( request );
 	}
 	
@@ -238,7 +278,6 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 				logger.error( "Invocation parameters invalid: {}", constraintViolations );
 				throw new ConstraintViolationException("Handling parameters invalid: " + constraintViolations, constraintViolations );
 			}
-			
 			
 			// apply interceptor pre-process
 			for ( Interceptor interceptor : interceptors ) {

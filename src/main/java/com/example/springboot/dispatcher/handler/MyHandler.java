@@ -27,7 +27,6 @@ public class MyHandler {
 	
 	@RequestMapping("/handle3")
 	public Object handle3( @NotNull @Header String myHeader, @Header("intHeader") Integer customHeader, @Body MyDto myDto ) throws Exception {
-		throw new Exception( "" );
-//		return "Success handle 2 request";
+		return "Success handle 2 request";
 	}
 }
