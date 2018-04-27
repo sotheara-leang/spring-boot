@@ -85,6 +85,8 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 		initParameterResolvers();
 		
 		initFilters();
+		
+		initInterceptors();
 	}
 
 	protected void initHandlingMappingInfo() throws BeansException, ClassNotFoundException {
@@ -187,6 +189,11 @@ public class BasicDispatcher implements ApplicationContextAware, InitializingBea
 			lastFilter = new DispatchFilter();
 			filters.add( lastFilter );
 		}
+	}
+	
+	protected void initInterceptors() {
+		Collection<Interceptor> scannedInterceptors = applicationContext.getBeansOfType( Interceptor.class ).values();
+		interceptors.addAll( scannedInterceptors );
 	}
 
 	@Override
