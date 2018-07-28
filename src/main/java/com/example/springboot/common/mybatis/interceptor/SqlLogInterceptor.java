@@ -1,30 +1,34 @@
 package com.example.springboot.common.mybatis.interceptor;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
+import org.apache.ibatis.scripting.xmltags.ForEachSqlNode;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.type.TypeHandler;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.springboot.common.EnumType;
+import com.example.springboot.common.mybatis.handler.AbstractTypeHandler;
 import com.example.springboot.common.mybatis.util.SqlFormatter;
 
 @Intercepts({ 
-	@Signature(type = StatementHandler.class, method = "update", args = { Statement.class }),
-	@Signature(type = StatementHandler.class, method = "query", args = { Statement.class, ResultHandler.class }) 
+	@Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
+	@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class }) 
 })
 public class SqlLogInterceptor implements Interceptor {
 
@@ -59,74 +63,142 @@ public class SqlLogInterceptor implements Interceptor {
 		this.prettyPrint = Boolean.valueOf(properties.getProperty(PRETTY_PRINT_PROPERTY_NAME));
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected String generateSQL(Invocation invocation) throws Exception {
 		String sql = null;
 		
 		try {
-			final StatementHandler stmtHandler = (StatementHandler) invocation.getTarget();
-			final BoundSql boundSql = stmtHandler.getBoundSql();
-	
-			final Object object = boundSql.getParameterObject();
-	
+			Object object = invocation.getArgs()[1];
+			
+			MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
+			BoundSql boundSql = mappedStatement.getBoundSql(object);
+			
+			Configuration configuration = mappedStatement.getConfiguration();
+			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+			
 			sql = boundSql.getSql().replaceAll("\\n", "").replaceAll("\\s{2,}", " ");
 	
-			final List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
+			List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
 			for (ParameterMapping pm : parameterMapping) {
-				final String paramName = pm.getProperty();
+				Class<?> paramType = pm.getJavaType();
+				String paramName = pm.getProperty();
+				PropertyTokenizer propTokenizer = new PropertyTokenizer( paramName );
 				
-				Object paramValue = null;
-				if (boundSql.getAdditionalParameter(paramName) != null) {
+				Object paramValue = object;
+				if (paramName.startsWith(ForEachSqlNode.ITEM_PREFIX) && boundSql.hasAdditionalParameter(propTokenizer.getName())) {
+					// for each
+					paramValue = boundSql.getAdditionalParameter(propTokenizer.getName());
+					if ( paramValue != null ) {
+						paramValue = configuration.newMetaObject(paramValue).getValue(propTokenizer.getChildren());
+					}
+				} else if (boundSql.getAdditionalParameter(paramName) != null) {
+					// additional parameter
 					paramValue = boundSql.getAdditionalParameter(paramName);
 				} else {
-					paramValue = findParameterValue(object, paramName);
+					if (!ClassUtils.isPrimitiveOrWrapper(object.getClass())) {
+						paramValue = configuration.newMetaObject(object).getValue(paramName);
+					}
+				}
+				
+				if (Object.class.isAssignableFrom(paramType)) {
+					paramType = paramValue.getClass();
+				}
+			
+				// global type handler
+				TypeHandler<? extends Object> typeHandler = typeHandlerRegistry.getTypeHandler(paramType);
+				if (AbstractTypeHandler.class.isAssignableFrom(typeHandler.getClass())) {
+					paramValue = ((AbstractTypeHandler) typeHandler).getDBValue(paramValue);
+					
+				} else if (AbstractTypeHandler.class.isAssignableFrom(pm.getTypeHandler().getClass())) {
+					// specific type handler
+					typeHandler = pm.getTypeHandler();
+					paramValue = ((AbstractTypeHandler) typeHandler).getDBValue(paramValue);
 				}
 				
 				sql = sql.replaceFirst("\\?", formatParameterValue(paramValue));
-				
 			}
 		} catch (Exception e) {
-			logger.debug("Error generate SQL: ", sql);
+			logger.debug("Error generating SQL: ", sql, e);
 			throw e;
 		}
 		
 		return sql;
 	}
 	
-	protected Object findParameterValue(Object obj, String paramName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		final Class<?> objClass = obj.getClass();
-		
-		if (org.springframework.util.ClassUtils.isPrimitiveOrWrapper(objClass)) {
-			return obj;
-		}
-		
-		final Integer point = paramName.indexOf(".");
-		final Boolean isObjectMap = Map.class.isAssignableFrom(objClass);
-		
-		Object paramValue = null;
-		
-		if (point != -1) {
-			final String childParamName = paramName.substring(0, point);
-			final Object childObj = isObjectMap ? ((Map<?, ?>) obj).get(childParamName) : PropertyUtils.getProperty(obj, childParamName);
-			
-			paramValue = findParameterValue(childObj, paramName.substring(point + 1));
-		}
-		
-		paramValue = isObjectMap ? ((Map<?, ?>) obj).get(paramName) : PropertyUtils.getProperty(obj, paramName);
-		
-		if (paramValue instanceof EnumType) {
-			paramValue = ((EnumType<?>) paramValue).getValue();
-		}
-		
-		return paramValue;
-	}
-	
+//	@SuppressWarnings({ "unchecked", "rawtypes" })
+//	protected String generateSQL(Invocation invocation) throws Exception {
+//		String sql = null;
+//		
+//		try {
+//			Object object = invocation.getArgs()[1];
+//			
+//			MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
+//			BoundSql boundSql = mappedStatement.getBoundSql(object);
+//			
+//			Configuration configuration = mappedStatement.getConfiguration();
+//			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+//			
+//			sql = boundSql.getSql().replaceAll("\\n", "").replaceAll("\\s{2,}", " ");
+//	
+//			List<ParameterMapping> parameterMapping = boundSql.getParameterMappings();
+//			for (ParameterMapping pm : parameterMapping) {
+//				Class<?> paramType = pm.getJavaType();
+//				String paramName = pm.getProperty();
+//				PropertyTokenizer propTokenizer = new PropertyTokenizer( paramName );
+//				
+//				Object paramValue = object;
+//				if (paramName.startsWith(ForEachSqlNode.ITEM_PREFIX) && boundSql.hasAdditionalParameter(propTokenizer.getName())) {
+//					// for each
+//					paramValue = boundSql.getAdditionalParameter(propTokenizer.getName());
+//					if ( paramValue != null ) {
+//						paramValue = configuration.newMetaObject(paramValue).getValue(propTokenizer.getChildren());
+//					}
+//				} else if (boundSql.getAdditionalParameter(paramName) != null) {
+//					paramValue = boundSql.getAdditionalParameter(paramName);
+//					
+//				} else if (typeHandlerRegistry.hasTypeHandler(paramType)) {
+//					// global type handler
+//					TypeHandler<? extends Object> typeHandler = typeHandlerRegistry.getTypeHandler(paramType);
+//					if (AbstractTypeHandler.class.isAssignableFrom(typeHandler.getClass())) {
+//						paramValue = configuration.newMetaObject(object).getValue(paramName);
+//						paramValue = ((AbstractTypeHandler) typeHandler).getDBValue(paramValue);
+//					}
+//				} else if (AbstractTypeHandler.class.isAssignableFrom(pm.getTypeHandler().getClass())) {
+//					// specific type handler
+//					TypeHandler<?> typeHandler = pm.getTypeHandler();
+//					if (object != null) {
+//						paramValue = ((AbstractTypeHandler) typeHandler).getDBValue(object);
+//					}
+//				} else {
+//					// simple
+//					if (object != null) {
+//						if (!ClassUtils.isPrimitiveOrWrapper(object.getClass())) {
+//							paramValue = configuration.newMetaObject(object).getValue(paramName);
+//						}
+//					}
+//				}
+//				
+//				sql = sql.replaceFirst("\\?", formatParameterValue(paramValue));
+//				
+//			}
+//		} catch (Exception e) {
+//			logger.debug("Error generating SQL: ", sql, e);
+//			throw e;
+//		}
+//		
+//		return sql;
+//	}
+//	
 	protected String formatParameterValue(Object obj) {
-		Class<?> objClass = obj.getClass();
-		
-		if (CharSequence.class.isAssignableFrom(objClass)
-				|| Enum.class.isAssignableFrom( objClass )) {
-			return String.format("'%s'", obj);
+		String formatStr = null;
+		if (obj != null) {
+			Class<?> objClass = obj.getClass();
+			if (CharSequence.class.isAssignableFrom(objClass) || Enum.class.isAssignableFrom( objClass )) {
+				formatStr = String.format("'%s'", obj);
+			} else {
+				formatStr = obj.toString();
+			}
 		}
-		return obj.toString();
+		return formatStr;
 	}
 }
